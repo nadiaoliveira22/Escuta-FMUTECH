@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F3F4F1">
+<meta name="description" content="Escuta: registro de humor e rotina, padrões emocionais e acesso a profissionais de saúde mental. Projeto FMU, ODS 3.">
+<title>Escuta: monitoramento de saúde mental</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   1. TOKENS
+   ========================================================= */
+:root{
+  --bg:#F3F4F1; --surface:#FFFFFF; --surface-2:#EBEEE8; --ink:#1E2A2E; --muted:#56646A; --line:#D9DED7;
+  --primary:#2E4A6B; --primary-soft:#E2E9F1; --on-primary:#FFFFFF;
+  --bem:#A87A10; --bem-fill:#EBC66A; --mal:#45659C; --mal-fill:#94ACD6; --ajuda:#AE3550; --ajuda-fill:#DE7C92;
+  --ok:#2C7656; --ok-soft:#DFF0E7; --warn:#9A6200; --warn-soft:#FBEFD6; --bad:#AE3550; --bad-soft:#F8E3E7;
+  --focus:#2F63E0; --shadow:0 1px 2px rgba(30,42,46,.05),0 8px 22px rgba(30,42,46,.06);
+  --header-bg:rgba(243,244,241,.9);
+  --font:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-serif:"Newsreader",Georgia,"Times New Roman",serif;
+  color-scheme:light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#10151C; --surface:#18202A; --surface-2:#212B37; --ink:#E6EBF0; --muted:#9BA8B5; --line:#2C3746;
+    --primary:#93B7E0; --primary-soft:#1E3048; --on-primary:#0C1624;
+    --bem:#E6C36A; --bem-fill:#C9A24B; --mal:#9DB5E0; --mal-fill:#6F8BBE; --ajuda:#F08DA2; --ajuda-fill:#C9607A;
+    --ok:#6FD3A6; --ok-soft:#163328; --warn:#F2BE5C; --warn-soft:#382B12; --bad:#F08DA2; --bad-soft:#3A1D25;
+    --focus:#8FB0FF; --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 26px rgba(0,0,0,.3);
+    --header-bg:rgba(16,21,28,.88); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10151C; --surface:#18202A; --surface-2:#212B37; --ink:#E6EBF0; --muted:#9BA8B5; --line:#2C3746;
+  --primary:#93B7E0; --primary-soft:#1E3048; --on-primary:#0C1624;
+  --bem:#E6C36A; --bem-fill:#C9A24B; --mal:#9DB5E0; --mal-fill:#6F8BBE; --ajuda:#F08DA2; --ajuda-fill:#C9607A;
+  --ok:#6FD3A6; --ok-soft:#163328; --warn:#F2BE5C; --warn-soft:#382B12; --bad:#F08DA2; --bad-soft:#3A1D25;
+  --focus:#8FB0FF; --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 26px rgba(0,0,0,.3);
+  --header-bg:rgba(16,21,28,.88); color-scheme:dark;
+}
+
+/* =========================================================
+   2. BASE
+   ========================================================= */
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--header-bg);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:8px}
+h1,h2,h3{margin:0;line-height:1.15}
+h1,.serif{font-family:var(--font-serif);font-weight:500;letter-spacing:-.01em}
+h2{font-size:1.1rem;font-weight:600}
+.icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.muted{color:var(--muted)}
+
+/* =========================================================
+   3. CABEÇALHO, NAVEGAÇÃO E BOTÃO DE AJUDA
+   ========================================================= */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--header-bg);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1120px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;gap:10px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;margin-right:auto}
+.brand-mark{width:34px;height:34px;border-radius:50%;background:var(--primary);color:var(--on-primary);display:grid;place-items:center}
+.brand b{font-family:var(--font-serif);font-size:1.45rem;font-weight:600;line-height:1}
+.brand small{display:block;font-size:.72rem;color:var(--muted);margin-top:2px}
+.nav{display:flex;gap:2px}
+.nav a{display:flex;align-items:center;gap:7px;padding:8px 11px;border-radius:10px;text-decoration:none;color:var(--muted);font-weight:500;font-size:.92rem;position:relative}
+.nav a:hover{background:var(--surface-2);color:var(--ink)}
+.nav a[aria-current="page"]{background:var(--primary-soft);color:var(--primary);font-weight:600}
+.nav .badge{position:absolute;top:3px;right:4px;min-width:17px;height:17px;border-radius:9px;background:var(--bad);color:#fff;font-size:.68rem;display:grid;place-items:center;padding:0 4px}
+.pill{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 11px 7px 9px;cursor:pointer;font-size:.86rem}
+.help-btn{display:flex;align-items:center;gap:7px;border:0;background:var(--ajuda);color:#fff;border-radius:999px;padding:8px 14px 8px 11px;cursor:pointer;font-weight:600;font-size:.9rem;text-decoration:none}
+:root[data-theme="dark"] .help-btn{color:#1A0A10}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .help-btn{color:#1A0A10}}
+@media (max-width:940px){
+  .nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding:4px 4px calc(4px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(5,1fr)}
+  .nav a{flex-direction:column;gap:2px;font-size:.7rem;padding:7px 2px;text-align:center}
+  .nav .badge{right:calc(50% - 22px)}
+  .pill span,.brand small,.hide-sm{display:none}
+  .pill{padding:8px}
+}
+main{max-width:1120px;margin:0 auto;padding:20px 18px calc(110px + env(safe-area-inset-bottom,0px))}
+@media (min-width:941px){main{padding-bottom:48px}}
+
+/* =========================================================
+   4. COMPONENTES
+   ========================================================= */
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.page-head h1{font-size:2.1rem}
+.page-head p{margin:4px 0 0;color:var(--muted);max-width:68ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px}
+.card h2{margin-bottom:12px}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.card-head h2{margin:0}
+.stack{display:grid;gap:14px}
+.cols{display:grid;gap:16px}
+@media (min-width:940px){.cols{grid-template-columns:1.5fr 1fr;align-items:start}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1.5px solid var(--line);background:var(--surface);border-radius:11px;padding:9px 14px;cursor:pointer;font-weight:500;font-size:.93rem;text-decoration:none;line-height:1.2}
+.btn:hover{border-color:var(--muted)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn .icon{width:18px;height:18px}
+.btn-primary{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.btn-primary:hover{border-color:var(--primary);filter:brightness(1.08)}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn-ghost:hover{background:var(--surface-2);border-color:transparent}
+.btn-danger{color:var(--bad)}
+.btn-sm{padding:6px 10px;font-size:.85rem;border-radius:9px}
+.seg{display:inline-flex;flex-wrap:wrap;background:var(--surface-2);border-radius:12px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;border-radius:9px;padding:7px 12px;cursor:pointer;font-weight:500;color:var(--muted);font-size:.9rem}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;cursor:pointer;font-size:.88rem}
+.chip[aria-pressed="true"]{background:var(--primary-soft);border-color:var(--primary);color:var(--primary);font-weight:600}
+.tag{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:.78rem;font-weight:600;white-space:nowrap}
+.tag .icon{width:14px;height:14px}
+.t-ok{background:var(--ok-soft);color:var(--ok)} .t-warn{background:var(--warn-soft);color:var(--warn)} .t-bad{background:var(--bad-soft);color:var(--bad)}
+.t-info{background:var(--primary-soft);color:var(--primary)} .t-mute{background:var(--surface-2);color:var(--muted)}
+.field label,.field .lbl{display:block;font-weight:500;font-size:.9rem;margin-bottom:5px}
+.field small{display:block;color:var(--muted);font-size:.82rem;margin-top:4px}
+.field input:not([type=checkbox]):not([type=range]),.field select,.field textarea{width:100%;border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 11px}
+.field textarea{min-height:80px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary);outline:none}
+.field .err{display:none;color:var(--bad);font-size:.84rem;margin-top:4px}
+.field.invalid input,.field.invalid select{border-color:var(--bad)}
+.field.invalid .err{display:block}
+.row{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+@media (max-width:560px){.row{grid-template-columns:1fr}}
+.range{display:flex;align-items:center;gap:10px}
+.range input{flex:1;accent-color:var(--primary)}
+.range output{min-width:56px;text-align:right;font-weight:600}
+.check{display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-size:.93rem}
+.check input{width:18px;height:18px;margin-top:3px;accent-color:var(--primary);flex:none}
+.notice{display:flex;gap:10px;align-items:flex-start;background:var(--surface-2);border-radius:12px;padding:11px 13px;font-size:.9rem;color:var(--muted)}
+.notice .icon{width:18px;height:18px;color:var(--primary);margin-top:2px}
+.empty{text-align:center;padding:24px 14px;color:var(--muted);border:1.5px dashed var(--line);border-radius:14px}
+.empty b{display:block;color:var(--ink);margin-bottom:4px}
+.empty .btn{margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:500;font-size:.82rem}
+.table-wrap{overflow-x:auto}
+.toast-zone{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:70;display:grid;gap:8px;width:min(92vw,440px)}
+.toast{background:var(--ink);color:var(--bg);padding:11px 15px;border-radius:12px;font-size:.92rem;box-shadow:var(--shadow)}
+dialog{border:0;padding:0;background:transparent;color:var(--ink);width:min(560px,100vw);max-height:100%}
+dialog::backdrop{background:rgba(10,14,20,.55)}
+.sheet{background:var(--surface);border-radius:22px;padding:20px;max-height:calc(100dvh - 40px);overflow:auto}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+.sheet-head h2{font-family:var(--font-serif);font-size:1.5rem;font-weight:500}
+.icon-btn{width:38px;height:38px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);display:grid;place-items:center;cursor:pointer}
+.sheet-foot{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px}
+@media (max-width:600px){dialog{margin:auto 0 0;width:100vw;max-width:100vw}.sheet{border-radius:22px 22px 0 0;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));max-height:92dvh}}
+
+/* =========================================================
+   5. REGISTRO DE HUMOR E FAIXA DO HUMOR
+   ========================================================= */
+.greet h1{font-size:2.5rem}
+.greet p{margin:6px 0 0;color:var(--muted)}
+.ribbon-wrap{margin:18px 0 22px}
+.ribbon{display:flex;gap:3px;height:46px}
+.ribbon i{flex:1;border-radius:6px;background:var(--surface-2);position:relative}
+.ribbon i.bem{background:var(--bem-fill)} .ribbon i.mal{background:var(--mal-fill)} .ribbon i.ajuda{background:var(--ajuda-fill)}
+.ribbon i.hoje{outline:2px solid var(--ink);outline-offset:2px}
+.ribbon-legend{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:.82rem;color:var(--muted);margin-top:8px}
+.legend{display:flex;gap:14px;flex-wrap:wrap}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:3px}
+.moods{display:grid;gap:12px}
+@media (min-width:760px){.moods{grid-template-columns:1fr 1fr 1.15fr}}
+.mood{display:flex;flex-direction:column;gap:10px;align-items:flex-start;text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:20px;padding:18px;cursor:pointer;min-height:132px}
+.mood:hover{border-color:var(--mc)}
+.mood .mi{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--mf) 35%,var(--surface));color:var(--mc)}
+.mood .mi .icon{width:24px;height:24px}
+.mood b{font-family:var(--font-serif);font-size:1.4rem;font-weight:500;line-height:1.15}
+.mood span{color:var(--muted);font-size:.88rem}
+.mood.ajuda{background:color-mix(in srgb,var(--ajuda-fill) 14%,var(--surface));border-color:color-mix(in srgb,var(--ajuda) 35%,var(--line))}
+.mood[aria-pressed="true"]{border-color:var(--mc);box-shadow:0 0 0 3px color-mix(in srgb,var(--mc) 25%,transparent)}
+.m-bem{--mc:var(--bem);--mf:var(--bem-fill)} .m-mal{--mc:var(--mal);--mf:var(--mal-fill)} .m-ajuda{--mc:var(--ajuda);--mf:var(--ajuda-fill)}
+.routine{display:grid;gap:16px}
+@media (min-width:760px){.routine{grid-template-columns:1fr 1fr}}
+.scale{display:flex;gap:6px}
+.scale button{flex:1;border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 0;cursor:pointer;font-weight:600}
+.scale button[aria-pressed="true"]{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.reply{border-left:4px solid var(--mc);background:color-mix(in srgb,var(--mf) 14%,var(--surface))}
+.reply h2{font-family:var(--font-serif);font-size:1.5rem;font-weight:500}
+.supports{display:grid;gap:10px;margin-top:12px}
+@media (min-width:700px){.supports{grid-template-columns:repeat(3,1fr)}}
+.sup{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:14px;padding:13px;background:var(--surface);text-decoration:none;text-align:left;cursor:pointer;font-size:.92rem}
+.sup b{font-size:1rem}
+.sup span{color:var(--muted);font-size:.86rem}
+.mini-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.ms{background:var(--surface-2);border-radius:14px;padding:12px}
+.ms small{display:block;color:var(--muted);font-size:.8rem}
+.ms b{font-family:var(--font-serif);font-size:1.8rem;font-weight:500;line-height:1.1}
+.entry{display:flex;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+.entry:first-child{border-top:0;padding-top:0}
+.entry .dot{width:12px;height:12px;border-radius:50%;margin-top:6px;flex:none}
+.entry b{font-weight:600}
+.entry p{margin:2px 0 0;color:var(--muted);font-size:.88rem}
+
+/* =========================================================
+   6. INDICADORES
+   ========================================================= */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:13px 15px}
+.stat small{display:block;color:var(--muted);font-size:.82rem}
+.stat b{display:block;font-family:var(--font-serif);font-size:2rem;font-weight:500;line-height:1.15}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.calgrid .dow{font-size:.74rem;color:var(--muted);text-align:center}
+.calgrid div.d{aspect-ratio:1;border-radius:7px;background:var(--surface-2);font-size:.72rem;display:grid;place-items:center;color:var(--muted)}
+.calgrid div.d.bem{background:var(--bem-fill);color:#2A2005} .calgrid div.d.mal{background:var(--mal-fill);color:#0E1A30} .calgrid div.d.ajuda{background:var(--ajuda-fill);color:#2A0812}
+.calgrid div.d.out{background:transparent}
+.bars{display:flex;align-items:flex-end;gap:8px;height:170px;padding-top:6px}
+.bars .bc{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%}
+.bars .stackb{flex:1;width:100%;max-width:38px;display:flex;flex-direction:column-reverse;border-radius:7px;overflow:hidden;background:var(--surface-2)}
+.bars small{font-size:.72rem;color:var(--muted);white-space:nowrap}
+.hbar{display:grid;grid-template-columns:130px 1fr 58px;gap:10px;align-items:center;margin:7px 0;font-size:.9rem}
+.hbar .tr{height:12px;border-radius:6px;background:var(--surface-2);overflow:hidden}
+.hbar .tr i{display:block;height:100%;border-radius:6px}
+.pattern{border-radius:16px;padding:14px 16px;border:1px solid var(--line);background:var(--surface)}
+.pattern.atencao{background:var(--warn-soft);border-color:color-mix(in srgb,var(--warn) 35%,transparent)}
+.pattern.cuidado{background:var(--bad-soft);border-color:color-mix(in srgb,var(--bad) 35%,transparent)}
+.pattern h3{font-size:1.02rem;font-weight:600;margin-bottom:4px}
+.pattern p{margin:0;font-size:.92rem}
+.pattern details{margin-top:8px;font-size:.86rem;color:var(--muted)}
+.pattern summary{cursor:pointer}
+
+/* =========================================================
+   7. CUIDADO, CONVERSAS, PRIVACIDADE
+   ========================================================= */
+.filters{display:grid;gap:12px;margin-bottom:14px}
+@media (min-width:860px){.filters{grid-template-columns:1.2fr 1fr 1fr 1fr;align-items:end}}
+.pros{display:grid;gap:12px}
+@media (min-width:760px){.pros{grid-template-columns:1fr 1fr}}
+.pro{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.pro-top{display:flex;gap:12px;align-items:flex-start}
+.avatar{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-weight:700;flex:none;background:var(--primary-soft);color:var(--primary)}
+.pro h3{font-family:var(--font-serif);font-size:1.25rem;font-weight:500}
+.pro p{margin:0;font-size:.9rem;color:var(--muted)}
+.pro-tags{display:flex;gap:6px;flex-wrap:wrap}
+.pro-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+.slots{display:grid;gap:10px}
+.slot-day b{display:block;font-size:.88rem;margin-bottom:5px}
+.services{display:grid;gap:12px}
+@media (min-width:760px){.services{grid-template-columns:1fr 1fr}}
+.service{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.service .num{font-family:var(--font-serif);font-size:2rem;font-weight:600;min-width:64px;color:var(--primary);line-height:1}
+.service p{margin:4px 0 0;font-size:.9rem;color:var(--muted)}
+.chat{display:grid;gap:14px}
+@media (min-width:860px){.chat{grid-template-columns:280px 1fr;align-items:start}}
+.threads{display:grid;gap:6px}
+.thread{display:flex;gap:10px;align-items:center;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:10px;cursor:pointer}
+.thread[aria-current="true"]{border-color:var(--primary);background:var(--primary-soft)}
+.thread .avatar{width:38px;height:38px;font-size:.9rem}
+.thread small{display:block;color:var(--muted);font-size:.8rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}
+.msgs{display:flex;flex-direction:column;gap:8px;max-height:52vh;min-height:260px;overflow:auto;padding:4px}
+.msg{max-width:78%;padding:9px 13px;border-radius:16px;font-size:.95rem}
+.msg time{display:block;font-size:.72rem;opacity:.7;margin-top:2px}
+.msg.eu{align-self:flex-end;background:var(--primary);color:var(--on-primary);border-bottom-right-radius:4px}
+.msg.outro{align-self:flex-start;background:var(--surface-2);border-bottom-left-radius:4px}
+.msg.sis{align-self:center;background:transparent;color:var(--muted);font-size:.84rem;text-align:center;max-width:90%}
+.composer{display:flex;gap:8px;margin-top:10px}
+.composer textarea{flex:1;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:10px;resize:none;min-height:46px}
+.audit li{display:flex;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:.9rem}
+.audit li:first-child{border-top:0}
+.audit time{color:var(--muted);min-width:118px}
+.audit{list-style:none;margin:0;padding:0;max-height:300px;overflow:auto}
+.avail{display:grid;grid-template-columns:52px repeat(7,1fr);gap:3px;font-size:.78rem}
+.avail span{text-align:center;color:var(--muted)}
+.avail button{border:0;border-radius:6px;background:var(--surface-2);height:26px;cursor:pointer}
+.avail button[aria-pressed="true"]{background:var(--primary)}
+
+/* =========================================================
+   8. TELA DE CRISE
+   ========================================================= */
+.crisis{max-width:760px;margin:0 auto}
+.crisis h1{font-size:2.4rem}
+.crisis-calls{display:grid;gap:12px;margin:18px 0}
+@media (min-width:640px){.crisis-calls{grid-template-columns:1fr 1fr}}
+.call{display:flex;gap:16px;align-items:center;text-decoration:none;border-radius:20px;padding:18px 20px;background:var(--ajuda);color:#fff}
+.call.sec{background:var(--surface);color:var(--ink);border:1.5px solid var(--line)}
+.call .n{font-family:var(--font-serif);font-size:3rem;font-weight:600;line-height:.9}
+.call span{display:block;font-size:.9rem;opacity:.92}
+.call b{display:block;font-size:1.1rem}
+:root[data-theme="dark"] .call:not(.sec){color:#1A0A10}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .call:not(.sec){color:#1A0A10}}
+.ground{counter-reset:g;list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.ground li{display:flex;gap:12px;align-items:center}
+.ground li::before{counter-increment:g;content:counter(g, decimal);width:30px;height:30px;border-radius:50%;background:var(--primary-soft);color:var(--primary);display:grid;place-items:center;font-weight:700;flex:none}
+
+/* ---------- Entrada ---------- */
+.auth{max-width:980px;margin:10px auto;display:grid;gap:18px}
+@media (min-width:880px){.auth{grid-template-columns:1.05fr 1fr;align-items:center}}
+.auth-intro h1{font-size:2.9rem;line-height:1.05}
+.auth-intro p{color:var(--muted);font-size:1.05rem;max-width:46ch}
+.demo-btns{display:grid;gap:8px;margin-top:16px}
+.demo{display:flex;gap:12px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:12px;cursor:pointer}
+.demo:hover{border-color:var(--muted)}
+.demo span{display:block;font-size:.85rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="topbar-inner">
+  <a class="brand" href="#" id="brand"><span class="brand-mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 16 0"/><path d="M8 12a4 4 0 0 1 8 0"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/><path d="M12 13v7"/></svg></span><span><b>Escuta</b><small>Monitoramento de saúde mental</small></span></a>
+  <nav class="nav" id="nav" aria-label="Seções"></nav>
+  <a class="help-btn" id="helpBtn" href="#ajuda" style="display:none"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="m4.9 4.9 4.3 4.3M14.8 14.8l4.3 4.3M14.8 9.2l4.3-4.3M4.9 19.1l4.3-4.3"/></svg><span class="hide-sm">Preciso de ajuda</span></a>
+  <button class="pill" id="themeBtn" type="button"></button>
+  <button class="pill" id="sairBtn" type="button" style="display:none"></button>
+</div></header>
+<main id="app" tabindex="-1"></main>
+<dialog id="sheet"><div class="sheet" id="sheetBody"></div></dialog>
+<div class="toast-zone" id="toasts" role="status" aria-live="polite"></div>
+
+<script>
+/* =========================================================
+   A. ÍCONES E UTILITÁRIOS
+   ========================================================= */
+const IC = {
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon:'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>',
+  auto:'<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18Z" fill="currentColor" stroke="none"/>',
+  cloud:'<path d="M17.5 19H8a5 5 0 1 1 1-9.9A6 6 0 0 1 20.5 11a4 4 0 0 1-3 8Z"/>',
+  life:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="m4.9 4.9 4.3 4.3M14.8 14.8l4.3 4.3M14.8 9.2l4.3-4.3M4.9 19.1l4.3-4.3"/>',
+  home:'<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z"/>',
+  chart:'<path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/>',
+  people:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M21.5 20a6.5 6.5 0 0 0-4-6"/>',
+  chat:'<path d="M21 12a8 8 0 0 1-11.9 7L3 20.5l1.5-5.6A8 8 0 1 1 21 12Z"/>',
+  shield:'<path d="M12 3 4 6v6c0 5 3.5 8.5 8 9 4.5-.5 8-4 8-9V6Z"/><path d="m9 12 2 2 4-4"/>',
+  bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/>',
+  cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  phone:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/>',
+  video:'<rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/>',
+  check:'<path d="M20 6 9 17l-5-5"/>',
+  x:'<path d="M18 6 6 18M6 6l12 12"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/>',
+  star:'<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9Z"/>',
+  logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
+  download:'<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>',
+  trash:'<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>',
+  send:'<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
+  badge:'<path d="M12 2 9.5 4.5 6 4l-.5 3.5L2 9.5 4 12.5 3 16l3.5 1 1.5 3.5 4-1.5 4 1.5 1.5-3.5L21 16l-1-3.5 2-3L18.5 7.5 18 4l-3.5.5Z"/><path d="m9 12 2 2 4-4"/>',
+  pin:'<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+  wind:'<path d="M3 8h11a3 3 0 1 0-3-3"/><path d="M3 12h16a3 3 0 1 1-3 3"/><path d="M3 16h7"/>',
+  walk:'<circle cx="13" cy="4" r="2"/><path d="m9 21 2-6 3 3v3M7 10l3-3 4 1 2 4 3 1M11 15l-1-5"/>',
+  edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>'
+};
+const icon = (n, cls="") => `<svg class="icon ${cls}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
+const pad = n => String(n).padStart(2,"0");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const diaDe = iso => ymd(new Date(iso));
+const hojeStr = () => ymd(new Date());
+const fmtData = iso => new Date(iso).toLocaleDateString("pt-BR", {day:"2-digit", month:"2-digit"});
+const fmtDH = iso => { const d = new Date(iso); return `${pad(d.getDate())}/${pad(d.getMonth()+1)} às ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const fmtHora = iso => { const d = new Date(iso); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const fmtLonga = d => d.toLocaleDateString("pt-BR", {weekday:"long", day:"numeric", month:"long"});
+const num = (v, d=1) => v == null || isNaN(v) ? "–" : Number(v).toFixed(d).replace(".", ",");
+const media = a => a.length ? a.reduce((x,y) => x + y, 0) / a.length : NaN;
+const iniciais = n => n.replace(/^(Dra?\.|Equipe|Clínica)\s+/,"").split(" ").filter(Boolean).slice(0,2).map(p => p[0]).join("").toUpperCase();
+const DOW = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+function toast(msg){ const z = document.getElementById("toasts"), t = document.createElement("div"); t.className = "toast"; t.textContent = msg; z.appendChild(t); setTimeout(() => t.remove(), 4200); }
+const pref = {get(k,d){ try{ const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); }catch(e){ return d; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }};
+async function hashSenha(senha, sal){
+  const txt = sal + ":" + senha;
+  if (window.crypto && crypto.subtle){
+    try{ const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(txt)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2,"0")).join(""); }catch(e){}
+  }
+  let h = 2166136261; for (const c of txt){ h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return "fnv" + (h >>> 0).toString(16);
+}
+
+/* =========================================================
+   B. BASE DE DADOS LOCAL (espelha as tabelas do escuta-schema.sql)
+   ========================================================= */
+const DB_KEY = "escuta:db";
+let DB = null;
+function salvarDB(){ try{ localStorage.setItem(DB_KEY, JSON.stringify(DB)); }catch(e){ toast("Não foi possível salvar neste navegador."); } }
+const vazioDB = () => ({usuarios:[], profissionais:[], registros:[], consentimentos:[], agendamentos:[], mensagens:[], alertas:[], auditoria:[], sessao:null, versao:1});
+function auditar(ator, acao, alvo){ DB.auditoria.unshift({id:uid(), em:new Date().toISOString(), ator, acao, alvo}); DB.auditoria = DB.auditoria.slice(0, 500); }
+const eu = () => DB.sessao && (DB.sessao.tipo === "u" ? DB.usuarios : DB.profissionais).find(x => x.id === DB.sessao.id);
+const proPorId = id => DB.profissionais.find(p => p.id === id);
+const userPorId = id => DB.usuarios.find(u => u.id === id);
+function consentimentoAtivo(u, p){
+  return DB.consentimentos.find(c => c.uid === u && c.pid === p && !c.revogado && (!c.expira || new Date(c.expira) > new Date()));
+}
+
+/* ---------- Dados de demonstração (pessoas fictícias) ---------- */
+async function semear(){
+  DB = vazioDB();
+  const sal = () => Math.random().toString(36).slice(2,10);
+  const conta = async (o) => { const s = sal(); return {...o, sal:s, senha:await hashSenha("demo1234", s), criado:new Date().toISOString()}; };
+  const disp = (dias, horas) => Object.fromEntries(dias.map(d => [d, horas]));
+  DB.profissionais = [
+    await conta({id:uid(), nome:"Dra. Helena Duarte", email:"helena@exemplo.com", profissao:"Psicóloga", conselho:{tipo:"CRP", uf:"06", numero:"145872"}, verificado:true, rede:"privada", valor:150, cidade:"São Paulo", bairro:"Pinheiros", online:true, presencial:true, plantao:true, abordagem:"Terapia cognitivo-comportamental. Ansiedade e estresse no trabalho.", disp:disp([1,2,3,4], ["09:00","10:00","14:00","18:00","19:00"])}),
+    await conta({id:uid(), nome:"Dr. Marcos Oliveira", email:"marcos@exemplo.com", profissao:"Psiquiatra", conselho:{tipo:"CRM", uf:"SP", numero:"182455"}, verificado:true, rede:"privada", valor:320, cidade:"São Paulo", bairro:"Paraíso", online:true, presencial:true, plantao:false, abordagem:"Avaliação psiquiátrica e acompanhamento medicamentoso.", disp:disp([2,4], ["08:00","09:00","10:00"])}),
+    await conta({id:uid(), nome:"Juliana Prado", email:"juliana@exemplo.com", profissao:"Psicóloga", conselho:{tipo:"CRP", uf:"06", numero:"178210"}, verificado:true, rede:"social", valor:60, cidade:"São Paulo", bairro:"Online", online:true, presencial:false, plantao:true, abordagem:"Psicologia humanista. Atendimento com valor social para estudantes e trabalhadores.", disp:disp([1,3,5,6], ["11:00","15:00","20:00"])}),
+    await conta({id:uid(), nome:"Clínica-escola de Psicologia", email:"clinica@exemplo.com", profissao:"Serviço-escola universitário", conselho:{tipo:"CRP", uf:"06", numero:"200310"}, verificado:true, rede:"social", valor:20, cidade:"São Paulo", bairro:"Liberdade", online:false, presencial:true, plantao:false, abordagem:"Atendimento por estudantes de Psicologia, sob supervisão. Fila de espera.", disp:disp([1,2,3,4,5], ["13:00","14:00","15:00"])}),
+    await conta({id:uid(), nome:"Rafael Souza", email:"rafael@exemplo.com", profissao:"Psicólogo da UBS", conselho:{tipo:"CRP", uf:"06", numero:"164990"}, verificado:true, rede:"publica", valor:0, cidade:"São Paulo", bairro:"Sé", online:false, presencial:true, plantao:false, abordagem:"Atenção básica do SUS. Encaminhamento ao CAPS quando necessário.", disp:disp([1,2,3,4,5], ["08:00","10:00","13:00"])}),
+    await conta({id:uid(), nome:"Patrícia Gomes", email:"patricia@exemplo.com", profissao:"Psicóloga", conselho:{tipo:"CRP", uf:"04", numero:"052233"}, verificado:false, rede:"privada", valor:120, cidade:"Belo Horizonte", bairro:"Online", online:true, presencial:false, plantao:true, abordagem:"Terapia de aceitação e compromisso (ACT).", disp:disp([0,6], ["10:00","11:00","16:00"])})
+  ];
+  const ana = await conta({id:uid(), nome:"Ana Lima", email:"ana@exemplo.com", cidade:"São Paulo", lembrete:"20:00", aceite:new Date().toISOString()});
+  const bruno = await conta({id:uid(), nome:"Bruno Reis", email:"bruno@exemplo.com", cidade:"São Paulo", lembrete:"21:00", aceite:new Date().toISOString()});
+  DB.usuarios = [ana, bruno];
+  const hel = DB.profissionais[0];
+  let s = 7; const rnd = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+  const SENT_BOM = ["Calma","Motivação","Gratidão"], SENT_RUIM = ["Ansiedade","Cansaço","Sobrecarga","Irritação","Tristeza"];
+  const gerar = (u, dias, tendencia) => {
+    for (let i = dias; i >= 0; i--){
+      if (rnd() < .15 && i > 0) continue;
+      const d = new Date(); d.setDate(d.getDate() - i); d.setHours(19 + Math.floor(rnd()*3), Math.floor(rnd()*59), 0, 0);
+      if (i === 0 && d > new Date()) d.setTime(Date.now() - 60000);
+      const trabalho = Math.round((7 + rnd()*5) * 2) / 2, sono = Math.round((8.2 - (trabalho - 8) * .45 + (rnd() - .5) * 1.6) * 2) / 2;
+      const risco = (7 - sono) * .25 + (trabalho - 9) * .15 + tendencia + (rnd() - .5) * .6;
+      let humor = risco > .45 ? "mal" : "bem";
+      if (u === ana && i === 9) humor = "ajuda";
+      const sent = humor === "bem" ? [SENT_BOM[Math.floor(rnd()*3)]] : [SENT_RUIM[Math.floor(rnd()*5)], SENT_RUIM[Math.floor(rnd()*5)]].filter((v,k,a) => a.indexOf(v) === k);
+      DB.registros.push({id:uid(), uid:u.id, em:d.toISOString(), humor, sono, qualSono: humor === "bem" ? 4 : 2, atividade: rnd() < .45 ? 30 : 0, trabalho, social: rnd() < (humor === "bem" ? .8 : .4), alimentacao: rnd() < .75, sentimentos:sent, nota:""});
+    }
+  };
+  gerar(ana, 45, .05); gerar(bruno, 20, -.2);
+  const ag = new Date(); ag.setDate(ag.getDate() + 2); ag.setHours(19, 0, 0, 0);
+  const c0 = new Date(); c0.setDate(c0.getDate() - 30);
+  DB.consentimentos.push({id:uid(), uid:ana.id, pid:hel.id, humor:true, rotina:true, notas:false, periodo:90, crise:true, concedido:c0.toISOString(), expira:null, revogado:null});
+  DB.agendamentos.push({id:uid(), uid:ana.id, pid:hel.id, inicio:ag.toISOString(), modalidade:"video", status:"confirmado", criado:new Date().toISOString()});
+  const m = (dias, de, texto) => { const d = new Date(); d.setDate(d.getDate() - dias); DB.mensagens.push({id:uid(), uid:ana.id, pid:hel.id, de, texto, em:d.toISOString()}); };
+  m(9, "s", "Pedido de ajuda enviado pelo aplicativo."); m(9, "p", "Oi, Ana. Recebi seu aviso. Estou aqui. Você está em um lugar seguro agora?"); m(9, "u", "Estou em casa, mais calma. Obrigada por responder."); m(9, "p", "Que bom. Vamos conversar com calma na nossa sessão. Se piorar, ligue 188.");
+  const al = new Date(); al.setDate(al.getDate() - 9);
+  DB.alertas.push({id:uid(), uid:ana.id, pid:hel.id, em:al.toISOString(), atendido:al.toISOString()});
+  auditar("Ana Lima", "concedeu acesso a humor e rotina para Dra. Helena Duarte", ana.id);
+  auditar("Dra. Helena Duarte", "visualizou os registros autorizados", ana.id);
+  DB.auditoria.forEach((a,i) => { const d = new Date(); d.setDate(d.getDate() - 30 + i * 21); a.em = d.toISOString(); });
+  salvarDB();
+}
+
+/* =========================================================
+   C. TEMA
+   ========================================================= */
+const TEMAS = {auto:["Automático","auto"], light:["Claro","sun"], dark:["Escuro","moon"]};
+let tema = pref.get("escuta:tema","auto");
+function aplicarTema(){
+  const r = document.documentElement;
+  tema === "auto" ? r.removeAttribute("data-theme") : r.setAttribute("data-theme", tema);
+  const b = document.getElementById("themeBtn");
+  b.innerHTML = icon(TEMAS[tema][1]) + `<span>${TEMAS[tema][0]}</span>`;
+  b.setAttribute("aria-label", `Tema ${TEMAS[tema][0]}. Toque para mudar`);
+  const escuro = tema === "dark" || (tema === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
+  document.querySelector('meta[name="theme-color"]').content = escuro ? "#10151C" : "#F3F4F1";
+}
+document.getElementById("themeBtn").onclick = () => { tema = tema === "auto" ? "light" : tema === "light" ? "dark" : "auto"; pref.set("escuta:tema", tema); aplicarTema(); };
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", aplicarTema);
+
+/* =========================================================
+   D. DIÁLOGOS E VALIDAÇÃO
+   ========================================================= */
+const sheet = document.getElementById("sheet"), sheetBody = document.getElementById("sheetBody");
+function abrir(titulo, html, montar){
+  sheetBody.innerHTML = `<div class="sheet-head"><h2>${titulo}</h2><button class="icon-btn" type="button" data-fechar aria-label="Fechar">${icon("x")}</button></div>${html}`;
+  if (!sheet.open) sheet.showModal();
+  sheetBody.querySelectorAll("[data-fechar]").forEach(b => b.onclick = fechar);
+  montar && montar(sheetBody);
+}
+function fechar(){ if (sheet.open) sheet.close(); }
+sheet.addEventListener("click", e => { if (e.target === sheet) fechar(); });
+function confirmar(titulo, texto, rot, acao){
+  abrir(titulo, `<p class="muted" style="margin:0">${texto}</p><div class="sheet-foot"><button class="btn" data-fechar>Cancelar</button><button class="btn btn-primary" id="ok">${rot}</button></div>`, b => b.querySelector("#ok").onclick = () => { fechar(); acao(); });
+}
+function validar(form, regras){
+  form.querySelectorAll(".field").forEach(f => f.classList.remove("invalid"));
+  let primeiro = null;
+  regras.forEach(([nome, ok]) => { if (!ok){ const el = form.elements[nome]; el.closest(".field").classList.add("invalid"); primeiro = primeiro || el; } });
+  primeiro && primeiro.focus();
+  return !primeiro;
+}
+
+/* =========================================================
+   E. HUMOR, PADRÕES E VISUALIZAÇÕES
+   ========================================================= */
+const HUMOR = {
+  bem:{rot:"Estou bem", curto:"Bem", ic:"sun", desc:"Registrar e seguir o dia.", cls:"m-bem"},
+  mal:{rot:"Não estou bem", curto:"Não estou bem", ic:"cloud", desc:"Registrar e ver formas de apoio.", cls:"m-mal"},
+  ajuda:{rot:"Não estou bem, preciso de ajuda", curto:"Pediu ajuda", ic:"life", desc:"Contatos de emergência e profissionais agora.", cls:"m-ajuda"}
+};
+const PESO = {bem:0, mal:1, ajuda:2};
+const SENTIMENTOS = ["Calma","Motivação","Gratidão","Ansiedade","Tristeza","Cansaço","Irritação","Medo","Solidão","Sobrecarga"];
+const registrosDe = (u, dias) => { const lim = Date.now() - dias * 864e5; return DB.registros.filter(r => r.uid === u && (!dias || new Date(r.em).getTime() >= lim)).sort((a,b) => b.em.localeCompare(a.em)); };
+function humorDoDia(regs){
+  const m = {}; regs.forEach(r => { const d = diaDe(r.em); if (!m[d] || PESO[r.humor] > PESO[m[d]]) m[d] = r.humor; }); return m;
+}
+function faixa(regs, dias=30){
+  const m = humorDoDia(regs), cells = [];
+  for (let i = dias - 1; i >= 0; i--){ const d = new Date(); d.setDate(d.getDate() - i); const k = ymd(d); cells.push(`<i class="${m[k] || ""} ${i === 0 ? "hoje" : ""}" title="${d.toLocaleDateString("pt-BR")}: ${m[k] ? HUMOR[m[k]].curto : "sem registro"}"></i>`); }
+  return `<div class="ribbon" role="img" aria-label="Humor dos últimos ${dias} dias">${cells.join("")}</div>`;
+}
+const legenda = () => `<div class="legend"><span><i style="background:var(--bem-fill)"></i>Bem</span><span><i style="background:var(--mal-fill)"></i>Não estou bem</span><span><i style="background:var(--ajuda-fill)"></i>Pediu ajuda</span><span><i style="background:var(--surface-2)"></i>Sem registro</span></div>`;
+function sequenciaBem(regs){
+  const m = humorDoDia(regs); let n = 0;
+  for (let i = 0; i < 400; i++){ const d = new Date(); d.setDate(d.getDate() - i); const h = m[ymd(d)]; if (i === 0 && !h) continue; if (h === "bem") n++; else break; }
+  return n;
+}
+
+/* Padrões: regras simples e transparentes. Não são diagnóstico. */
+function padroes(u){
+  const r7 = registrosDe(u, 7), r30 = registrosDe(u, 30), out = [];
+  const d7 = humorDoDia(r7), dias7 = Object.values(d7), mal7 = dias7.filter(h => h !== "bem").length;
+  const ajuda14 = registrosDe(u, 14).some(r => r.humor === "ajuda");
+  if (ajuda14) out.push({nivel:"cuidado", titulo:"Você pediu ajuda nas últimas duas semanas", texto:"Manter um acompanhamento profissional pode fazer diferença. Os contatos de apoio continuam sempre no botão “Preciso de ajuda”.", regra:"Existe pelo menos um registro “Não estou bem, preciso de ajuda” nos últimos 14 dias.", acao:"cuidado"});
+  if (mal7 >= 4) out.push({nivel:"atencao", titulo:`Dias difíceis em ${mal7} dos últimos 7`, texto:"Quando o mal-estar se repete por vários dias, conversar com um profissional ajuda a entender o que está acontecendo.", regra:"Quatro ou mais dias com “Não estou bem” ou pedido de ajuda nos últimos 7 dias.", acao:"cuidado"});
+  const comSono = r30.filter(r => r.sono != null);
+  const sB = media(comSono.filter(r => r.humor === "bem").map(r => r.sono)), sM = media(comSono.filter(r => r.humor !== "bem").map(r => r.sono));
+  if (comSono.length >= 8 && sB - sM >= .8) out.push({nivel:"info", titulo:"Seu humor acompanha o sono", texto:`Nos dias em que você se sentiu bem, dormiu em média ${num(sB)} h. Nos outros, ${num(sM)} h.`, regra:"Diferença de pelo menos 48 minutos entre a média de sono dos dias bons e dos dias difíceis, nos últimos 30 dias, com 8 ou mais registros de sono."});
+  const longos = r7.filter(r => r.trabalho >= 10).length;
+  if (longos >= 3) out.push({nivel:"atencao", titulo:"Jornadas longas nesta semana", texto:`Você registrou 10 horas ou mais de trabalho ou estudo em ${longos} dias. Jornadas longas e frequentes estão associadas ao esgotamento.`, regra:"Três ou mais registros com 10 h ou mais de trabalho ou estudo nos últimos 7 dias."});
+  const semContato = r7.filter(r => r.social === false).length;
+  if (r7.length >= 4 && semContato / r7.length >= .7) out.push({nivel:"info", titulo:"Pouco contato com outras pessoas", texto:"Na maioria dos registros desta semana você não conversou com alguém próximo. Um contato rápido com quem você gosta costuma ajudar.", regra:"70% ou mais dos registros dos últimos 7 dias marcados sem contato social."});
+  return out;
+}
+function padroesHTML(lista){
+  if (!lista.length) return `<div class="empty"><b>Nenhum padrão de atenção agora</b>Continue registrando: os padrões aparecem com o tempo.</div>`;
+  return `<div class="stack" style="gap:10px">${lista.map(p => `<article class="pattern ${p.nivel}"><h3>${p.titulo}</h3><p>${p.texto}</p>
+    ${p.acao ? `<a class="btn btn-sm" href="#${p.acao}" style="margin-top:10px">${icon("people")} Ver profissionais</a>` : ""}
+    <details><summary>Por que estou vendo isso?</summary>${p.regra} É uma regra simples, revisável por profissionais de saúde. Não é diagnóstico.</details></article>`).join("")}</div>`;
+}
+
+/* =========================================================
+   F. ROTAS E NAVEGAÇÃO
+   ========================================================= */
+const ROTAS_U = [["hoje","Hoje","home"],["historico","Indicadores","chart"],["cuidado","Cuidado","people"],["conversas","Conversas","chat"],["privacidade","Privacidade","shield"]];
+const ROTAS_P = [["painel","Painel","bell"],["pacientes","Pacientes","people"],["agenda","Agenda","cal"],["conversas","Conversas","chat"],["perfil","Perfil","user"]];
+let rotaAtual = "entrar", ui = {periodo:30, filtro:{texto:"", rede:"", modalidade:"", cidade:"", valorMax:400}, cuidadoAba:"pros", thread:null, paciente:null, humorSel:null, rascunho:null};
+function rota(){
+  const h = (location.hash || "").slice(1);
+  if (!DB.sessao){ rotaAtual = "entrar"; return render(); }
+  const rotas = DB.sessao.tipo === "u" ? [...ROTAS_U.map(r => r[0]), "ajuda"] : ROTAS_P.map(r => r[0]);
+  rotaAtual = rotas.includes(h) ? h : rotas[0];
+  render(); window.scrollTo(0,0);
+}
+function render(){
+  const app = document.getElementById("app"), nav = document.getElementById("nav"), sess = DB.sessao;
+  document.getElementById("helpBtn").style.display = sess && sess.tipo === "u" && rotaAtual !== "ajuda" ? "" : "none";
+  const sair = document.getElementById("sairBtn");
+  sair.style.display = sess ? "" : "none"; sair.innerHTML = icon("logout") + "<span>Sair</span>";
+  document.getElementById("brand").href = sess ? (sess.tipo === "u" ? "#hoje" : "#painel") : "#";
+  if (!sess){ nav.innerHTML = ""; return telaEntrar(app); }
+  const rotas = sess.tipo === "u" ? ROTAS_U : ROTAS_P;
+  const badge = id => { if (sess.tipo === "p" && id === "painel"){ const n = DB.alertas.filter(a => a.pid === sess.id && !a.atendido).length; return n ? `<span class="badge">${n}</span>` : ""; } return ""; };
+  nav.innerHTML = rotas.map(([id,r,ic]) => `<a href="#${id}" ${id===rotaAtual?'aria-current="page"':""}>${icon(ic)}<span>${r}</span>${badge(id)}</a>`).join("");
+  ({hoje:telaHoje, historico:telaHistorico, cuidado:telaCuidado, conversas:telaConversas, privacidade:telaPrivacidade, ajuda:telaAjuda,
+    painel:telaPainel, pacientes:telaPacientes, agenda:telaAgenda, perfil:telaPerfil})[rotaAtual](app);
+}
+window.addEventListener("hashchange", rota);
+document.getElementById("sairBtn").onclick = () => { DB.sessao = null; salvarDB(); location.hash = ""; rota(); };
+
+/* =========================================================
+   G. ENTRAR E CRIAR CONTA
+   ========================================================= */
+let abaAuth = "entrar", tipoConta = "u";
+function telaEntrar(app){
+  app.innerHTML = `<div class="auth">
+    <div class="auth-intro">
+      <h1>Perceber como você está é o primeiro passo para cuidar.</h1>
+      <p>Registre seu humor e sua rotina, acompanhe seus padrões e encontre ajuda profissional, pública ou particular, quando precisar.</p>
+      <div class="demo-btns">
+        <p class="muted" style="margin:6px 0 0;font-size:.9rem">Conhecer com dados de demonstração:</p>
+        <button class="demo" data-demo="ana@exemplo.com"><span class="avatar">AL</span><span style="flex:1"><b>Entrar como Ana</b><span>Usuária com 45 dias de registros</span></span>${icon("user")}</button>
+        <button class="demo" data-demo="helena@exemplo.com"><span class="avatar">HD</span><span style="flex:1"><b>Entrar como Dra. Helena</b><span>Psicóloga com acesso autorizado por Ana</span></span>${icon("badge")}</button>
+      </div>
+      <div class="notice" style="margin-top:14px">${icon("info")}<span>Em uma emergência, ligue <b>188</b> (CVV, gratuito, 24 horas) ou <b>192</b> (SAMU). Você não precisa de conta para isso.</span></div>
+    </div>
+    <section class="card">
+      <div class="seg" role="group" aria-label="Acesso" style="margin-bottom:16px"><button data-aba="entrar" aria-pressed="${abaAuth==="entrar"}">Entrar</button><button data-aba="criar" aria-pressed="${abaAuth==="criar"}">Criar conta</button></div>
+      <form id="fAuth" class="stack" novalidate></form>
+    </section></div>
+    <p class="muted" style="text-align:center;font-size:.85rem;margin-top:24px">Protótipo acadêmico, FMU, Análise e Desenvolvimento de Sistemas, ODS 3. Pessoas e profissionais da demonstração são fictícios.
+      <button class="btn btn-sm btn-ghost" id="reset">Restaurar demonstração</button></p>`;
+  const f = app.querySelector("#fAuth");
+  const campos = () => {
+    if (abaAuth === "entrar"){
+      f.innerHTML = `<div class="field"><label for="email">E-mail</label><input id="email" name="email" type="email" autocomplete="email"><div class="err">Informe o e-mail.</div></div>
+        <div class="field"><label for="senha">Senha</label><input id="senha" name="senha" type="password" autocomplete="current-password"><div class="err">Informe a senha.</div></div>
+        <p id="authErr" style="color:var(--bad);margin:0;min-height:1.4em" role="alert"></p>
+        <button class="btn btn-primary" type="submit">Entrar</button>`;
+    } else {
+      f.innerHTML = `<div class="seg" role="group" aria-label="Tipo de conta"><button type="button" data-tipo="u" aria-pressed="${tipoConta==="u"}">Sou usuário</button><button type="button" data-tipo="p" aria-pressed="${tipoConta==="p"}">Sou profissional de saúde</button></div>
+        <div class="field"><label for="nome">Nome</label><input id="nome" name="nome" autocomplete="name"><div class="err">Informe o nome.</div></div>
+        <div class="field"><label for="email">E-mail</label><input id="email" name="email" type="email" autocomplete="email"><div class="err">E-mail inválido ou já cadastrado.</div></div>
+        <div class="field"><label for="senha">Senha</label><input id="senha" name="senha" type="password" autocomplete="new-password"><small>Pelo menos 8 caracteres.</small><div class="err">Use pelo menos 8 caracteres.</div></div>
+        ${tipoConta === "p" ? `
+        <div class="row"><div class="field"><label for="profissao">Profissão</label><select id="profissao" name="profissao"><option>Psicóloga(o)</option><option>Psiquiatra</option></select></div>
+          <div class="field"><label for="uf">UF do conselho</label><input id="uf" name="uf" maxlength="2" placeholder="Ex.: 06 ou SP"><div class="err">Informe a UF ou região.</div></div></div>
+        <div class="field"><label for="registro">Número de registro (CRP ou CRM)</label><input id="registro" name="registro" inputmode="numeric" placeholder="Ex.: 123456"><small>O perfil só aparece para usuários depois da verificação no conselho.</small><div class="err">Informe de 4 a 7 números.</div></div>
+        <div class="row"><div class="field"><label for="rede">Rede</label><select id="rede" name="rede"><option value="privada">Particular</option><option value="social">Valor social</option><option value="publica">Pública (SUS)</option></select></div>
+          <div class="field"><label for="cidade">Cidade</label><input id="cidade" name="cidade" value="São Paulo"></div></div>` : `<div class="field"><label for="cidade">Cidade</label><input id="cidade" name="cidade" value="São Paulo"></div>`}
+        <label class="check"><input type="checkbox" name="aceite"> <span>Li e aceito os termos de uso e a política de privacidade. Entendo que meus registros são dados de saúde e só serão compartilhados com quem eu autorizar.</span></label>
+        <p id="authErr" style="color:var(--bad);margin:0;min-height:1.4em" role="alert"></p>
+        <button class="btn btn-primary" type="submit">Criar conta</button>`;
+      f.querySelectorAll("[data-tipo]").forEach(b => b.onclick = () => { tipoConta = b.dataset.tipo; campos(); });
+    }
+  };
+  campos();
+  app.querySelectorAll("[data-aba]").forEach(b => b.onclick = () => { abaAuth = b.dataset.aba; app.querySelectorAll("[data-aba]").forEach(x => x.setAttribute("aria-pressed", x === b)); campos(); });
+  app.querySelectorAll("[data-demo]").forEach(b => b.onclick = () => entrar(b.dataset.demo, "demo1234"));
+  app.querySelector("#reset").onclick = async () => { await semear(); toast("Dados de demonstração restaurados."); render(); };
+  f.onsubmit = async e => {
+    e.preventDefault(); const el = f.elements, err = f.querySelector("#authErr"); err.textContent = "";
+    if (abaAuth === "entrar"){
+      if (!validar(f, [["email", el.email.value.trim()], ["senha", el.senha.value]])) return;
+      if (!await entrar(el.email.value.trim().toLowerCase(), el.senha.value)) err.textContent = "E-mail ou senha incorretos.";
+      return;
+    }
+    const email = el.email.value.trim().toLowerCase();
+    const existe = [...DB.usuarios, ...DB.profissionais].some(x => x.email === email);
+    const regras = [["nome", el.nome.value.trim()], ["email", /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) && !existe], ["senha", el.senha.value.length >= 8]];
+    if (tipoConta === "p") regras.push(["uf", /^[A-Za-z0-9]{2}$/.test(el.uf.value.trim())], ["registro", /^\d{4,7}$/.test(el.registro.value.trim())]);
+    if (!validar(f, regras)) return;
+    if (!el.aceite.checked){ err.textContent = "É preciso aceitar os termos para continuar."; return; }
+    const sal = Math.random().toString(36).slice(2,10), senha = await hashSenha(el.senha.value, sal);
+    const base = {id:uid(), nome:el.nome.value.trim(), email, sal, senha, cidade:el.cidade.value.trim(), criado:new Date().toISOString()};
+    if (tipoConta === "u") DB.usuarios.push({...base, lembrete:"20:00", aceite:new Date().toISOString()});
+    else {
+      const crm = el.profissao.value === "Psiquiatra";
+      DB.profissionais.push({...base, profissao:el.profissao.value, conselho:{tipo: crm ? "CRM" : "CRP", uf:el.uf.value.trim().toUpperCase(), numero:el.registro.value.trim()}, verificado:false, rede:el.rede.value, valor: el.rede.value === "publica" ? 0 : 100, bairro:"", online:true, presencial:false, plantao:false, abordagem:"", disp:{}});
+    }
+    DB.sessao = {tipo:tipoConta, id:base.id}; salvarDB(); toast("Conta criada."); location.hash = ""; rota();
+  };
+}
+async function entrar(email, senha){
+  const u = DB.usuarios.find(x => x.email === email), p = DB.profissionais.find(x => x.email === email), c = u || p;
+  if (!c || await hashSenha(senha, c.sal) !== c.senha) return false;
+  DB.sessao = {tipo: u ? "u" : "p", id:c.id}; salvarDB(); location.hash = ""; rota(); return true;
+}
+
+/* =========================================================
+   H. USUÁRIO: HOJE (registro de humor)
+   ========================================================= */
+function telaHoje(app){
+  const u = eu(), regs = registrosDe(u.id, 30), hoje = regs.filter(r => diaDe(r.em) === hojeStr());
+  const h = new Date().getHours(), saud = h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
+  const pad7 = padroes(u.id);
+  const r30 = humorDoDia(regs), dias = Object.keys(r30).length, bons = Object.values(r30).filter(x => x === "bem").length;
+  const prox = DB.agendamentos.filter(a => a.uid === u.id && a.status === "confirmado" && new Date(a.inicio) > new Date()).sort((a,b) => a.inicio.localeCompare(b.inicio))[0];
+  app.innerHTML = `
+    <div class="greet"><h1>${saud}, ${esc(u.nome.split(" ")[0])}.</h1><p>${fmtLonga(new Date()).replace(/^./, c => c.toUpperCase())}${hoje.length ? `. Você já fez ${hoje.length} ${hoje.length === 1 ? "registro" : "registros"} hoje.` : ""}</p></div>
+    <div class="ribbon-wrap">${faixa(regs)}<div class="ribbon-legend"><span>Últimos 30 dias</span>${legenda()}</div></div>
+    <div class="cols">
+      <div class="stack">
+        <section class="card" id="checkin">
+          <h2 class="serif" style="font-size:1.6rem;font-weight:500;margin-bottom:14px">Como você está agora?</h2>
+          <div class="moods">${Object.entries(HUMOR).map(([k,m]) => `<button type="button" class="mood ${m.cls} ${k}" data-humor="${k}" aria-pressed="${ui.humorSel === k}"><span class="mi">${icon(m.ic)}</span><b>${m.rot}</b><span>${m.desc}</span></button>`).join("")}</div>
+          <div id="rotina"></div>
+        </section>
+        <div id="resposta"></div>
+      </div>
+      <div class="stack">
+        <section class="card"><h2>Seus últimos 30 dias</h2>
+          <div class="mini-stats">
+            <div class="ms"><small>Dias registrados</small><b>${dias}</b></div>
+            <div class="ms"><small>Dias em que esteve bem</small><b>${dias ? Math.round(bons/dias*100) + "%" : "–"}</b></div>
+            <div class="ms"><small>Sequência de dias bem</small><b>${sequenciaBem(regs)}</b></div>
+            <div class="ms"><small>Sono médio</small><b>${num(media(regs.filter(r => r.sono != null).map(r => r.sono)))} h</b></div>
+          </div>
+          <a class="btn btn-ghost" href="#historico" style="margin-top:10px">${icon("chart")} Ver indicadores</a></section>
+        <section class="card"><h2>O que observamos</h2>${padroesHTML(pad7.slice(0,2))}</section>
+        ${prox ? `<section class="card"><h2>Próximo atendimento</h2><p style="margin:0"><b>${esc(proPorId(prox.pid)?.nome)}</b><br><span class="muted">${fmtDH(prox.inicio)}, ${({chat:"chat", ligacao:"ligação", video:"videochamada"})[prox.modalidade]}</span></p></section>` : ""}
+      </div>
+    </div>`;
+  app.querySelectorAll("[data-humor]").forEach(b => b.onclick = () => escolherHumor(b.dataset.humor));
+  if (ui.humorSel && ui.humorSel !== "ajuda") formRotina();
+}
+function escolherHumor(k){
+  if (k === "ajuda"){ salvarRegistro({humor:"ajuda"}); location.hash = "#ajuda"; return; }
+  ui.humorSel = k;
+  document.querySelectorAll("[data-humor]").forEach(b => b.setAttribute("aria-pressed", b.dataset.humor === k));
+  formRotina();
+}
+function formRotina(){
+  const box = document.getElementById("rotina"), k = ui.humorSel;
+  const r = ui.rascunho = ui.rascunho || {sono:7, qualSono:null, atividade:null, trabalho:8, social:null, alimentacao:null, sentimentos:[], nota:""};
+  box.innerHTML = `<hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+    <p style="margin:0 0 14px"><b>Quer registrar como foi seu dia?</b> <span class="muted">Tudo aqui é opcional.</span></p>
+    <div class="routine">
+      <div class="field"><span class="lbl">Horas de sono na última noite</span><div class="range"><input type="range" min="0" max="12" step=".5" value="${r.sono}" id="sono" aria-label="Horas de sono"><output id="sonoO">${num(r.sono)} h</output></div></div>
+      <div class="field"><span class="lbl">Qualidade do sono</span><div class="scale" data-k="qualSono">${[1,2,3,4,5].map(n => `<button type="button" data-v="${n}" aria-pressed="${r.qualSono===n}" aria-label="Qualidade ${n} de 5">${n}</button>`).join("")}</div></div>
+      <div class="field"><span class="lbl">Trabalho ou estudo hoje</span><div class="range"><input type="range" min="0" max="16" step=".5" value="${r.trabalho}" id="trab" aria-label="Horas de trabalho ou estudo"><output id="trabO">${num(r.trabalho)} h</output></div></div>
+      <div class="field"><span class="lbl">Atividade física</span><div class="chips" data-k="atividade">${[[0,"Nenhuma"],[15,"15 min"],[30,"30 min"],[60,"1 h ou mais"]].map(([v,t]) => `<button type="button" class="chip" data-v="${v}" aria-pressed="${r.atividade===v}">${t}</button>`).join("")}</div></div>
+      <div class="field"><span class="lbl">Conversou com alguém próximo?</span><div class="chips" data-k="social"><button type="button" class="chip" data-v="1" aria-pressed="${r.social===true}">Sim</button><button type="button" class="chip" data-v="0" aria-pressed="${r.social===false}">Não</button></div></div>
+      <div class="field"><span class="lbl">Fez as refeições?</span><div class="chips" data-k="alimentacao"><button type="button" class="chip" data-v="1" aria-pressed="${r.alimentacao===true}">Sim</button><button type="button" class="chip" data-v="0" aria-pressed="${r.alimentacao===false}">Não</button></div></div>
+    </div>
+    <div class="field" style="margin-top:16px"><span class="lbl">O que você sentiu?</span><div class="chips" id="sent">${SENTIMENTOS.map(s => `<button type="button" class="chip" aria-pressed="${r.sentimentos.includes(s)}">${s}</button>`).join("")}</div></div>
+    <div class="field" style="margin-top:14px"><label for="nota">Anotação pessoal</label><textarea id="nota" maxlength="1000" placeholder="O que aconteceu hoje? Só você vê, a menos que autorize um profissional.">${esc(r.nota)}</textarea></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><button class="btn btn-primary" id="salvarReg">${icon("check")} Salvar registro</button><button class="btn btn-ghost" id="soHumor">Salvar só o humor</button></div>`;
+  const sono = box.querySelector("#sono"), trab = box.querySelector("#trab");
+  sono.oninput = () => { r.sono = +sono.value; box.querySelector("#sonoO").textContent = num(r.sono) + " h"; };
+  trab.oninput = () => { r.trabalho = +trab.value; box.querySelector("#trabO").textContent = num(r.trabalho) + " h"; };
+  box.querySelectorAll("[data-k]").forEach(g => g.querySelectorAll("button").forEach(b => b.onclick = () => {
+    const k2 = g.dataset.k, v = +b.dataset.v, valor = (k2 === "social" || k2 === "alimentacao") ? v === 1 : v;
+    r[k2] = r[k2] === valor ? null : valor;
+    g.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b && r[k2] !== null));
+  }));
+  box.querySelectorAll("#sent .chip").forEach(c => c.onclick = () => { const s = c.textContent, i = r.sentimentos.indexOf(s); i < 0 ? r.sentimentos.push(s) : r.sentimentos.splice(i, 1); c.setAttribute("aria-pressed", i < 0); });
+  box.querySelector("#nota").oninput = e => r.nota = e.target.value;
+  box.querySelector("#salvarReg").onclick = () => concluir({humor:k, ...r});
+  box.querySelector("#soHumor").onclick = () => concluir({humor:k});
+}
+function salvarRegistro(d){
+  const u = eu();
+  const reg = {id:uid(), uid:u.id, em:new Date().toISOString(), humor:d.humor, sono:d.sono ?? null, qualSono:d.qualSono ?? null, atividade:d.atividade ?? null, trabalho:d.trabalho ?? null, social:d.social ?? null, alimentacao:d.alimentacao ?? null, sentimentos:d.sentimentos || [], nota:(d.nota || "").trim()};
+  DB.registros.push(reg);
+  if (d.humor === "ajuda"){
+    DB.consentimentos.filter(c => c.uid === u.id && c.crise && !c.revogado).forEach(c => {
+      DB.alertas.push({id:uid(), uid:u.id, pid:c.pid, em:reg.em, atendido:null});
+      DB.mensagens.push({id:uid(), uid:u.id, pid:c.pid, de:"s", texto:"Pedido de ajuda enviado pelo aplicativo.", em:reg.em});
+      auditar("Sistema", `avisou ${proPorId(c.pid)?.nome} sobre o pedido de ajuda`, u.id);
+    });
+  }
+  salvarDB(); return reg;
+}
+function concluir(d){
+  salvarRegistro(d); ui.humorSel = null; ui.rascunho = null;
+  telaHoje(document.getElementById("app"));
+  const box = document.getElementById("resposta"), m = HUMOR[d.humor], u = eu();
+  if (d.humor === "bem"){
+    box.innerHTML = `<section class="card reply m-bem"><h2>Registrado. Que bom!</h2><p class="muted" style="margin:6px 0 0">Você está há ${sequenciaBem(registrosDe(u.id, 400))} ${sequenciaBem(registrosDe(u.id, 400)) === 1 ? "dia" : "dias"} se sentindo bem. Perceber o que ajuda nos dias bons também é cuidado.</p></section>`;
+  } else {
+    const ref = DB.consentimentos.find(c => c.uid === u.id && c.crise && !c.revogado);
+    box.innerHTML = `<section class="card reply m-mal"><h2>Obrigado por registrar.</h2>
+      <p style="margin:6px 0 0">Dias difíceis acontecem, e reconhecer isso já é um passo. Algumas coisas que podem ajudar agora:</p>
+      <div class="supports">
+        <button class="sup" type="button" id="resp1">${icon("wind")}<b>Um minuto para respirar</b><span>Inspire em 4 tempos e solte em 6, cinco vezes.</span></button>
+        <a class="sup" href="tel:188">${icon("phone")}<b>Conversar com o CVV</b><span>188, gratuito, 24 horas. Também por chat no site.</span></a>
+        <a class="sup" href="${ref ? "#conversas" : "#cuidado"}">${icon("people")}<b>${ref ? "Falar com " + esc(proPorId(ref.pid)?.nome) : "Procurar um profissional"}</b><span>${ref ? "Seu profissional de referência." : "Públicos, valor social e particulares."}</span></a>
+      </div></section>`;
+    box.querySelector("#resp1").onclick = respirar;
+    const p = padroes(u.id).find(x => x.nivel !== "info");
+    if (p) setTimeout(() => abrir("Um cuidado a mais", `<p style="margin-top:0"><b>${p.titulo}.</b> ${p.texto}</p><div class="notice">${icon("info")}<span>${p.regra} Não é diagnóstico.</span></div><div class="sheet-foot"><button class="btn" data-fechar>Agora não</button><a class="btn btn-primary" href="#cuidado" data-fechar>${icon("people")} Ver profissionais</a></div>`), 900);
+  }
+  box.scrollIntoView({behavior:"smooth", block:"start"});
+  toast("Registro salvo.");
+}
+function respirar(){
+  abrir("Respire comigo", `<div style="display:grid;place-items:center;gap:14px;padding:10px 0"><div id="bola" style="width:120px;height:120px;border-radius:50%;background:var(--mal-fill);transform:scale(.6);transition:transform 4s ease-in-out"></div><p class="serif" id="bt" style="font-size:1.5rem;margin:0">Prepare-se</p><p class="muted" id="bc" style="margin:0"></p></div>`, b => {
+    let ciclo = 0; const bola = b.querySelector("#bola"), t = b.querySelector("#bt"), c = b.querySelector("#bc");
+    const passo = () => {
+      if (!sheet.open || ciclo >= 5){ if (sheet.open){ t.textContent = "Muito bem."; c.textContent = "Como você se sente agora?"; } return; }
+      bola.style.transitionDuration = "4s"; bola.style.transform = "scale(1)"; t.textContent = "Inspire..."; c.textContent = `${ciclo + 1} de 5`;
+      setTimeout(() => { if (!sheet.open) return; bola.style.transitionDuration = "6s"; bola.style.transform = "scale(.6)"; t.textContent = "Solte devagar..."; setTimeout(() => { ciclo++; passo(); }, 6000); }, 4000);
+    };
+    setTimeout(passo, 800);
+  });
+}
+
+/* =========================================================
+   I. USUÁRIO: AJUDA (fluxo de crise)
+   ========================================================= */
+function telaAjuda(app){
+  const u = eu(), refs = DB.consentimentos.filter(c => c.uid === u.id && c.crise && !c.revogado).map(c => proPorId(c.pid)).filter(Boolean);
+  const plantao = DB.profissionais.filter(p => p.plantao && p.verificado && p.online);
+  app.innerHTML = `<div class="crisis">
+    <h1>Estamos com você. Vamos buscar apoio agora.</h1>
+    <p class="muted" style="font-size:1.05rem;margin:8px 0 0">Se você corre perigo ou está pensando em tirar a própria vida, ligue agora. A ligação é gratuita.</p>
+    <div class="crisis-calls">
+      <a class="call" href="tel:188"><span class="n">188</span><span><b>CVV</b><span>Conversa e apoio emocional, 24 horas, todos os dias.</span></span></a>
+      <a class="call sec" href="tel:192"><span class="n" style="color:var(--ajuda)">192</span><span><b>SAMU</b><span>Se houver risco imediato à vida.</span></span></a>
+    </div>
+    <p class="muted" style="font-size:.9rem;margin:-6px 0 18px">Prefere escrever? O CVV também atende por chat em <a href="https://cvv.org.br" target="_blank" rel="noopener">cvv.org.br</a>.</p>
+    <div class="stack">
+      ${refs.length ? `<section class="card"><h2>${icon("bell")} ${refs.map(p => esc(p.nome)).join(" e ")} ${refs.length === 1 ? "foi avisada(o)" : "foram avisados"}</h2>
+        <p style="margin:0">Você autorizou esse aviso. A mensagem chega na conversa de vocês.</p><a class="btn" href="#conversas" style="margin-top:12px">${icon("chat")} Abrir conversa</a></section>` : ""}
+      <section class="card"><h2>Profissionais com plantão online</h2>
+        <p class="muted" style="margin:-4px 0 12px;font-size:.92rem">Envie um pedido de conversa. Se ninguém responder em alguns minutos, ligue 188.</p>
+        <div class="stack" style="gap:8px">${plantao.map(p => `<div style="display:flex;gap:12px;align-items:center"><span class="avatar">${iniciais(p.nome)}</span><span style="flex:1"><b>${esc(p.nome)}</b><br><span class="muted" style="font-size:.88rem">${esc(p.profissao)}, ${p.rede === "privada" ? "particular" : "valor social"}</span></span><button class="btn btn-sm btn-primary" data-plantao="${p.id}">${icon("chat")} Pedir conversa</button></div>`).join("")}</div>
+      </section>
+      <section class="card"><h2>Enquanto isso, perceba o lugar onde você está</h2>
+        <ol class="ground"><li>Olhe ao redor e nomeie 5 coisas que você vê.</li><li>Toque em 4 coisas e sinta a textura delas.</li><li>Escute 3 sons diferentes.</li><li>Perceba 2 cheiros.</li><li>Respire devagar e note 1 sabor ou sensação na boca.</li></ol></section>
+      <section class="card"><h2>Outros caminhos</h2><p style="margin:0">Procure o <b>CAPS</b> ou a <b>UBS</b> mais perto de você, ou um pronto-socorro. Se puder, chame alguém de confiança para ficar com você.</p></section>
+      <a class="btn btn-primary" href="#hoje" style="justify-self:start">${icon("check")} Estou em segurança agora</a>
+    </div></div>`;
+  app.querySelectorAll("[data-plantao]").forEach(b => b.onclick = () => {
+    const pid = b.dataset.plantao, agora = new Date().toISOString();
+    DB.mensagens.push({id:uid(), uid:u.id, pid, de:"s", texto:"Pedido de conversa urgente enviado pelo botão de ajuda.", em:agora});
+    DB.alertas.push({id:uid(), uid:u.id, pid, em:agora, atendido:null});
+    auditar(u.nome, `pediu conversa urgente com ${proPorId(pid).nome}`, u.id);
+    salvarDB(); ui.thread = pid; b.disabled = true; b.textContent = "Pedido enviado";
+    toast("Pedido enviado. Se ninguém responder em alguns minutos, ligue 188.");
+  });
+}
+
+/* =========================================================
+   J. USUÁRIO: INDICADORES
+   ========================================================= */
+function telaHistorico(app){
+  const u = eu(), P = ui.periodo, regs = registrosDe(u.id, P), dh = humorDoDia(regs), dias = Object.keys(dh).length;
+  const cont = {bem:0, mal:0, ajuda:0}; Object.values(dh).forEach(h => cont[h]++);
+  const semanas = []; const nS = Math.min(12, Math.ceil(P / 7));
+  for (let w = nS - 1; w >= 0; w--){
+    const ini = new Date(); ini.setHours(0,0,0,0); ini.setDate(ini.getDate() - w*7 - 6); const fim = new Date(ini); fim.setDate(fim.getDate() + 7);
+    const c = {bem:0, mal:0, ajuda:0}; Object.entries(dh).forEach(([d,h]) => { const x = new Date(d + "T12:00"); if (x >= ini && x < fim) c[h]++; });
+    semanas.push({rot:fmtData(ini.toISOString()), ...c});
+  }
+  const maxS = Math.max(7, ...semanas.map(s => s.bem + s.mal + s.ajuda));
+  const sonoPor = h => media(regs.filter(r => r.sono != null && (h === "bem" ? r.humor === "bem" : r.humor !== "bem")).map(r => r.sono));
+  const trabPor = h => media(regs.filter(r => r.trabalho != null && (h === "bem" ? r.humor === "bem" : r.humor !== "bem")).map(r => r.trabalho));
+  const sent = {}; regs.forEach(r => r.sentimentos.forEach(s => sent[s] = (sent[s] || 0) + 1));
+  const topS = Object.entries(sent).sort((a,b) => b[1] - a[1]).slice(0, 6), maxSent = topS[0]?.[1] || 1;
+  const BONS = ["Calma","Motivação","Gratidão"];
+  const cal = []; const inicio = new Date(); inicio.setDate(inicio.getDate() - (Math.min(P, 35) - 1));
+  for (let i = 0; i < inicio.getDay(); i++) cal.push(`<div class="d out"></div>`);
+  for (let d = new Date(inicio); d <= new Date(); d.setDate(d.getDate() + 1)){ const k = ymd(d); cal.push(`<div class="d ${dh[k] || ""}" title="${d.toLocaleDateString("pt-BR")}">${d.getDate()}</div>`); }
+  app.innerHTML = `
+    <div class="page-head"><div><h1>Indicadores</h1><p>Seu histórico emocional e o que ele mostra. Os indicadores ajudam a perceber padrões; a avaliação é sempre de um profissional.</p></div>
+      <div class="seg" role="group" aria-label="Período">${[7,30,90].map(n => `<button data-p="${n}" aria-pressed="${P===n}">${n} dias</button>`).join("")}</div></div>
+    <div class="stats">
+      <div class="stat"><small>Dias registrados</small><b>${dias}</b></div>
+      <div class="stat"><small>Bem</small><b style="color:var(--bem)">${dias ? Math.round(cont.bem/dias*100) : 0}%</b></div>
+      <div class="stat"><small>Não estou bem</small><b style="color:var(--mal)">${dias ? Math.round(cont.mal/dias*100) : 0}%</b></div>
+      <div class="stat"><small>Pedidos de ajuda</small><b style="color:var(--ajuda)">${cont.ajuda}</b></div>
+    </div>
+    <div class="cols">
+      <div class="stack">
+        <section class="card"><div class="card-head"><h2>Dias por semana</h2>${legenda()}</div>
+          <div class="bars" role="img" aria-label="Dias de cada humor por semana">${semanas.map(s => `<div class="bc"><div class="stackb">${["bem","mal","ajuda"].map(h => s[h] ? `<i style="height:${s[h]/maxS*100}%;background:var(--${h}-fill)" title="${HUMOR[h].curto}: ${s[h]}"></i>` : "").join("")}</div><small>${s.rot}</small></div>`).join("")}</div></section>
+        <section class="card"><h2>Rotina nos dias bons e nos difíceis</h2>
+          ${[["Sono médio", sonoPor, 12, "h"],["Trabalho ou estudo", trabPor, 16, "h"]].map(([r, f, max, un]) => `<p style="margin:10px 0 2px;font-weight:600;font-size:.92rem">${r}</p>
+            <div class="hbar"><span>Dias bons</span><div class="tr"><i style="width:${(f("bem")||0)/max*100}%;background:var(--bem-fill)"></i></div><b>${num(f("bem"))} ${un}</b></div>
+            <div class="hbar"><span>Dias difíceis</span><div class="tr"><i style="width:${(f("mal")||0)/max*100}%;background:var(--mal-fill)"></i></div><b>${num(f("mal"))} ${un}</b></div>`).join("")}
+        </section>
+        <section class="card"><h2>Sentimentos mais registrados</h2>
+          ${topS.length ? topS.map(([s,n]) => `<div class="hbar"><span>${s}</span><div class="tr"><i style="width:${n/maxSent*100}%;background:${BONS.includes(s) ? "var(--bem-fill)" : "var(--mal-fill)"}"></i></div><b>${n}</b></div>`).join("") : `<p class="muted">Nenhum sentimento registrado no período.</p>`}</section>
+      </div>
+      <div class="stack">
+        <section class="card"><h2>Calendário</h2><div class="calgrid">${DOW.map(d => `<span class="dow">${d[0]}</span>`).join("")}${cal.join("")}</div></section>
+        <section class="card"><h2>Padrões observados</h2>${padroesHTML(padroes(u.id))}</section>
+        <section class="card"><h2>Registros</h2>
+          ${regs.slice(0, 12).map(r => `<div class="entry"><span class="dot" style="background:var(--${r.humor}-fill)"></span><div style="flex:1"><b>${HUMOR[r.humor].curto}</b> <span class="muted" style="font-size:.85rem">${fmtDH(r.em)}</span>
+            <p>${[r.sono != null && `sono ${num(r.sono)} h`, r.trabalho != null && `trabalho ${num(r.trabalho)} h`, r.sentimentos.join(", ")].filter(Boolean).join("; ")}</p>${r.nota ? `<p style="color:var(--ink)">${esc(r.nota)}</p>` : ""}</div>
+            <button class="btn btn-sm btn-ghost" data-del="${r.id}" aria-label="Excluir registro">${icon("trash")}</button></div>`).join("") || `<p class="muted">Sem registros no período.</p>`}</section>
+      </div>
+    </div>`;
+  app.querySelectorAll("[data-p]").forEach(b => b.onclick = () => { ui.periodo = +b.dataset.p; render(); });
+  app.querySelectorAll("[data-del]").forEach(b => b.onclick = () => confirmar("Excluir registro?", "Ele sai do seu histórico e de qualquer acesso autorizado.", "Excluir", () => { DB.registros = DB.registros.filter(r => r.id !== b.dataset.del); salvarDB(); render(); toast("Registro excluído."); }));
+}
+
+/* =========================================================
+   K. USUÁRIO: CUIDADO (profissionais e serviços)
+   ========================================================= */
+const REDE = {publica:["Gratuito (SUS)","t-ok"], social:["Valor social","t-info"], privada:["Particular","t-mute"]};
+function telaCuidado(app){
+  const u = eu(), f = ui.filtro;
+  const cidades = [...new Set(DB.profissionais.map(p => p.cidade))].sort();
+  const lista = DB.profissionais.filter(p => p.verificado)
+    .filter(p => !f.texto || (p.nome + p.profissao + p.abordagem + p.bairro).toLowerCase().includes(f.texto.toLowerCase()))
+    .filter(p => !f.rede || p.rede === f.rede)
+    .filter(p => !f.modalidade || (f.modalidade === "online" ? p.online : p.presencial))
+    .filter(p => !f.cidade || p.cidade === f.cidade || (p.online && f.modalidade !== "presencial"))
+    .filter(p => p.valor <= f.valorMax)
+    .sort((a,b) => a.valor - b.valor);
+  app.innerHTML = `
+    <div class="page-head"><div><h1>Cuidado</h1><p>Profissionais e serviços da rede pública e particular. Escolha o que cabe na sua realidade.</p></div>
+      <div class="seg" role="group"><button data-aba="pros" aria-pressed="${ui.cuidadoAba==="pros"}">Profissionais</button><button data-aba="servicos" aria-pressed="${ui.cuidadoAba==="servicos"}">Serviços públicos</button></div></div>
+    ${ui.cuidadoAba === "pros" ? `
+    <section class="card filters">
+      <div class="field"><label for="fTxt">Buscar</label><input id="fTxt" value="${esc(f.texto)}" placeholder="Nome, abordagem, bairro"></div>
+      <div class="field"><label for="fRede">Rede</label><select id="fRede"><option value="">Todas</option>${Object.entries(REDE).map(([k,[r]]) => `<option value="${k}" ${f.rede===k?"selected":""}>${r}</option>`).join("")}</select></div>
+      <div class="field"><label for="fMod">Atendimento</label><select id="fMod"><option value="">Online ou presencial</option><option value="online" ${f.modalidade==="online"?"selected":""}>Online</option><option value="presencial" ${f.modalidade==="presencial"?"selected":""}>Presencial</option></select></div>
+      <div class="field"><label for="fVal">Até R$ ${f.valorMax}</label><input type="range" id="fVal" min="0" max="400" step="10" value="${f.valorMax}" style="width:100%;accent-color:var(--primary)"></div>
+    </section>
+    <div class="pros">${lista.map(p => cardPro(p, u)).join("") || `<div class="empty"><b>Nenhum profissional com esses filtros</b>Amplie o valor ou veja os serviços públicos gratuitos.</div>`}</div>
+    <p class="muted" style="font-size:.85rem;margin-top:14px">Só aparecem perfis com registro no conselho verificado. Os profissionais desta demonstração são fictícios.</p>` : `
+    <div class="services">
+      <div class="service"><span class="num">188</span><div><b>CVV: Centro de Valorização da Vida</b><p>Apoio emocional e prevenção do suicídio, gratuito, 24 horas, por telefone, chat e e-mail. Atendido por voluntários.</p></div></div>
+      <div class="service"><span class="num">192</span><div><b>SAMU</b><p>Urgência e emergência, incluindo crises em que há risco à vida.</p></div></div>
+      <div class="service"><span class="num" style="font-size:1.4rem">CAPS</span><div><b>Centro de Atenção Psicossocial</b><p>Serviço do SUS para sofrimento psíquico intenso ou persistente. Muitos atendem sem encaminhamento: procure o da sua região na prefeitura.</p></div></div>
+      <div class="service"><span class="num" style="font-size:1.4rem">UBS</span><div><b>Unidade Básica de Saúde</b><p>Porta de entrada do SUS. Pode acompanhar casos leves e moderados e encaminhar à psicologia ou ao CAPS.</p></div></div>
+      <div class="service"><span class="num" style="font-size:1.4rem">Escola</span><div><b>Clínicas-escola de Psicologia</b><p>Universidades oferecem atendimento gratuito ou a preço reduzido, feito por estudantes sob supervisão.</p></div></div>
+      <div class="service"><span class="num">136</span><div><b>Disque Saúde</b><p>Informações sobre os serviços do SUS e ouvidoria do Ministério da Saúde.</p></div></div>
+    </div>`}`;
+  app.querySelectorAll("[data-aba]").forEach(b => b.onclick = () => { ui.cuidadoAba = b.dataset.aba; render(); });
+  if (ui.cuidadoAba === "pros"){
+    const t = app.querySelector("#fTxt"); t.oninput = () => { f.texto = t.value; clearTimeout(t._t); t._t = setTimeout(() => { render(); const n = document.getElementById("fTxt"); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }, 300); };
+    app.querySelector("#fRede").onchange = e => { f.rede = e.target.value; render(); };
+    app.querySelector("#fMod").onchange = e => { f.modalidade = e.target.value; render(); };
+    app.querySelector("#fVal").onchange = e => { f.valorMax = +e.target.value; render(); };
+    app.querySelector("#fVal").oninput = e => e.target.previousElementSibling.textContent = `Até R$ ${e.target.value}`;
+    app.querySelectorAll("[data-agendar]").forEach(b => b.onclick = () => agendar(proPorId(b.dataset.agendar)));
+    app.querySelectorAll("[data-compart]").forEach(b => b.onclick = () => compartilhar(proPorId(b.dataset.compart)));
+    app.querySelectorAll("[data-conversar]").forEach(b => b.onclick = () => { ui.thread = b.dataset.conversar; location.hash = "#conversas"; });
+  }
+}
+function cardPro(p, u){
+  const c = consentimentoAtivo(u.id, p.id);
+  return `<article class="pro"><div class="pro-top"><span class="avatar">${iniciais(p.nome)}</span><div style="flex:1"><h3>${esc(p.nome)}</h3><p>${esc(p.profissao)}, ${p.conselho.tipo} ${p.conselho.uf}/${p.conselho.numero}</p></div>
+    <span class="tag t-ok" title="Registro verificado no conselho">${icon("badge")} Verificado</span></div>
+    <div class="pro-tags"><span class="tag ${REDE[p.rede][1]}">${REDE[p.rede][0]}</span><span class="tag t-mute">${p.valor ? "R$ " + p.valor + " por sessão" : "Sem custo"}</span>
+      ${p.online ? `<span class="tag t-mute">${icon("video")} Online</span>` : ""}${p.presencial ? `<span class="tag t-mute">${icon("pin")} ${esc(p.bairro)}, ${esc(p.cidade)}</span>` : ""}${p.plantao ? `<span class="tag t-bad">Plantão para crises</span>` : ""}</div>
+    <p>${esc(p.abordagem)}</p>
+    ${c ? `<p style="color:var(--ok);font-size:.86rem">${icon("shield")} Você compartilha ${[c.humor && "humor", c.rotina && "rotina", c.notas && "anotações"].filter(Boolean).join(", ")}${c.crise ? ". Profissional de referência em crise." : "."}</p>` : ""}
+    <div class="pro-actions"><button class="btn btn-sm btn-primary" data-agendar="${p.id}">${icon("cal")} Agendar</button>
+      <button class="btn btn-sm" data-compart="${p.id}">${icon("share")} ${c ? "Ajustar compartilhamento" : "Compartilhar registros"}</button>
+      ${p.online ? `<button class="btn btn-sm btn-ghost" data-conversar="${p.id}">${icon("chat")} Conversar</button>` : ""}</div></article>`;
+}
+function proximosHorarios(p, dias=10){
+  const out = [], ocupados = new Set(DB.agendamentos.filter(a => a.pid === p.id && a.status === "confirmado").map(a => a.inicio.slice(0,16)));
+  for (let i = 0; i < dias; i++){
+    const d = new Date(); d.setDate(d.getDate() + i);
+    const hs = (p.disp[d.getDay()] || []).map(h => { const x = new Date(d); const [hh,mm] = h.split(":"); x.setHours(+hh, +mm, 0, 0); return x; })
+      .filter(x => x.getTime() > Date.now() + 3600e3 && !ocupados.has(x.toISOString().slice(0,16)));
+    if (hs.length) out.push({d, hs});
+  }
+  return out;
+}
+function agendar(p){
+  const dias = proximosHorarios(p); let escolha = null, mod = p.online ? "video" : "presencial";
+  abrir(`Agendar com ${esc(p.nome)}`, `
+    ${dias.length ? `<div class="slots">${dias.slice(0,6).map(x => `<div class="slot-day"><b>${fmtLonga(x.d)}</b><div class="chips">${x.hs.map(h => `<button type="button" class="chip" data-h="${h.toISOString()}">${fmtHora(h.toISOString())}</button>`).join("")}</div></div>`).join("")}</div>` : `<p class="muted">Sem horários livres nos próximos dias.</p>`}
+    <div class="field" style="margin-top:14px"><span class="lbl">Como prefere ser atendido?</span><div class="chips" id="mods">${[p.online && ["video","Videochamada"], p.online && ["ligacao","Ligação"], p.online && ["chat","Chat"], p.presencial && ["presencial","Presencial"]].filter(Boolean).map(([k,r]) => `<button type="button" class="chip" data-m="${k}" aria-pressed="${k===mod}">${r}</button>`).join("")}</div></div>
+    <div class="notice" style="margin-top:12px">${icon("info")}<span>${p.valor ? `Valor combinado diretamente com o profissional: R$ ${p.valor}. O app não intermedeia pagamentos.` : "Atendimento sem custo."}</span></div>
+    <div class="sheet-foot"><button class="btn" data-fechar>Cancelar</button><button class="btn btn-primary" id="conf" disabled>${icon("check")} Confirmar</button></div>`, b => {
+    b.querySelectorAll("[data-h]").forEach(c => c.onclick = () => { escolha = c.dataset.h; b.querySelectorAll("[data-h]").forEach(x => x.setAttribute("aria-pressed", x === c)); b.querySelector("#conf").disabled = false; });
+    b.querySelectorAll("[data-m]").forEach(c => c.onclick = () => { mod = c.dataset.m; b.querySelectorAll("[data-m]").forEach(x => x.setAttribute("aria-pressed", x === c)); });
+    b.querySelector("#conf").onclick = () => {
+      const u = eu(); DB.agendamentos.push({id:uid(), uid:u.id, pid:p.id, inicio:escolha, modalidade:mod, status:"confirmado", criado:new Date().toISOString()});
+      DB.mensagens.push({id:uid(), uid:u.id, pid:p.id, de:"s", texto:`Atendimento agendado para ${fmtDH(escolha)}.`, em:new Date().toISOString()});
+      salvarDB(); fechar(); toast(`Agendado para ${fmtDH(escolha)}.`);
+      if (!consentimentoAtivo(u.id, p.id)) setTimeout(() => compartilhar(p, true), 400);
+    };
+  });
+}
+function compartilhar(p, sugestao){
+  const u = eu(), c = consentimentoAtivo(u.id, p.id) || {humor:true, rotina:false, notas:false, periodo:90, crise:false};
+  abrir(sugestao ? "Quer compartilhar seus registros?" : `Compartilhar com ${esc(p.nome)}`, `
+    <p style="margin-top:0">${sugestao ? `Isso ajuda ${esc(p.nome)} a entender como você tem estado antes do atendimento. ` : ""}Você escolhe o que compartilhar e pode revogar a qualquer momento.</p>
+    <form id="fc" class="stack" style="gap:10px">
+      <label class="check"><input type="checkbox" name="humor" ${c.humor ? "checked" : ""}> <span><b>Humor</b>: como você se sentiu em cada registro.</span></label>
+      <label class="check"><input type="checkbox" name="rotina" ${c.rotina ? "checked" : ""}> <span><b>Rotina</b>: sono, trabalho, atividade física, refeições e sentimentos.</span></label>
+      <label class="check"><input type="checkbox" name="notas" ${c.notas ? "checked" : ""}> <span><b>Anotações pessoais</b>: o texto que você escreve.</span></label>
+      <div class="field"><label for="per">Período visível</label><select id="per" name="periodo">${[[30,"Últimos 30 dias"],[90,"Últimos 90 dias"],[0,"Todo o histórico"]].map(([v,t]) => `<option value="${v}" ${c.periodo===v?"selected":""}>${t}</option>`).join("")}</select></div>
+      <label class="check"><input type="checkbox" name="crise" ${c.crise ? "checked" : ""}> <span><b>Profissional de referência</b>: avisar quando eu tocar em “Preciso de ajuda”.</span></label>
+    </form>
+    <div class="notice" style="margin-top:12px">${icon("shield")}<span>Cada vez que o profissional abrir seus registros, isso fica no seu histórico de acessos, em Privacidade.</span></div>
+    <div class="sheet-foot">${consentimentoAtivo(u.id, p.id) ? `<button class="btn btn-danger btn-ghost" id="rev">Revogar acesso</button>` : ""}<button class="btn" data-fechar>${sugestao ? "Agora não" : "Cancelar"}</button><button class="btn btn-primary" id="ok">${icon("check")} Autorizar</button></div>`, b => {
+    const f = b.querySelector("#fc");
+    b.querySelector("#ok").onclick = () => {
+      if (!f.elements.humor.checked && !f.elements.rotina.checked && !f.elements.notas.checked && !f.elements.crise.checked) return toast("Escolha ao menos um item ou toque em Cancelar.");
+      const ant = consentimentoAtivo(u.id, p.id); if (ant) ant.revogado = new Date().toISOString();
+      const n = {id:uid(), uid:u.id, pid:p.id, humor:f.elements.humor.checked, rotina:f.elements.rotina.checked, notas:f.elements.notas.checked, periodo:+f.elements.periodo.value, crise:f.elements.crise.checked, concedido:new Date().toISOString(), expira:null, revogado:null};
+      DB.consentimentos.push(n);
+      auditar(u.nome, `${ant ? "alterou" : "concedeu"} acesso para ${p.nome}: ${[n.humor && "humor", n.rotina && "rotina", n.notas && "anotações", n.crise && "aviso em crise"].filter(Boolean).join(", ")}`, u.id);
+      salvarDB(); fechar(); render(); toast("Autorização registrada.");
+    };
+    const r = b.querySelector("#rev"); if (r) r.onclick = () => { revogar(consentimentoAtivo(u.id, p.id)); fechar(); };
+  });
+}
+function revogar(c){
+  c.revogado = new Date().toISOString();
+  auditar(eu().nome, `revogou o acesso de ${proPorId(c.pid)?.nome}`, c.uid);
+  salvarDB(); render(); toast("Acesso revogado.");
+}
+
+/* =========================================================
+   L. CONVERSAS (usuário e profissional)
+   ========================================================= */
+function telaConversas(app){
+  const s = DB.sessao, souU = s.tipo === "u";
+  const pares = {};
+  DB.mensagens.filter(m => souU ? m.uid === s.id : m.pid === s.id).forEach(m => { const k = souU ? m.pid : m.uid; if (!pares[k] || m.em > pares[k].em) pares[k] = m; });
+  if (ui.thread && !pares[ui.thread]) pares[ui.thread] = null;
+  const ids = Object.keys(pares).sort((a,b) => (pares[b]?.em || "9").localeCompare(pares[a]?.em || "9"));
+  if (!ui.thread || !ids.includes(ui.thread)) ui.thread = ids[0] || null;
+  const nomeDe = id => souU ? proPorId(id)?.nome : userPorId(id)?.nome;
+  const msgs = ui.thread ? DB.mensagens.filter(m => souU ? (m.uid === s.id && m.pid === ui.thread) : (m.pid === s.id && m.uid === ui.thread)).sort((a,b) => a.em.localeCompare(b.em)) : [];
+  const ag = ui.thread && DB.agendamentos.filter(a => (souU ? a.uid === s.id && a.pid === ui.thread : a.pid === s.id && a.uid === ui.thread) && a.status === "confirmado" && new Date(a.inicio) > new Date()).sort((a,b) => a.inicio.localeCompare(b.inicio))[0];
+  app.innerHTML = `
+    <div class="page-head"><div><h1>Conversas</h1><p>${souU ? "Mensagens com os profissionais que você escolheu." : "Mensagens com seus pacientes."}</p></div></div>
+    ${ids.length ? `<div class="chat">
+      <div class="threads">${ids.map(id => `<button class="thread" data-t="${id}" aria-current="${id===ui.thread}"><span class="avatar">${iniciais(nomeDe(id) || "?")}</span><span style="min-width:0"><b>${esc(nomeDe(id))}</b><small>${pares[id] ? esc(pares[id].texto) : "Nova conversa"}</small></span></button>`).join("")}</div>
+      <section class="card">
+        <div class="card-head"><h2>${esc(nomeDe(ui.thread))}</h2>${ag ? `<span class="tag t-info">${icon(ag.modalidade === "video" ? "video" : ag.modalidade === "ligacao" ? "phone" : "chat")} ${fmtDH(ag.inicio)}</span>` : ""}</div>
+        <div class="msgs" id="msgs">${msgs.map(m => `<div class="msg ${m.de === "s" ? "sis" : (m.de === (souU ? "u" : "p") ? "eu" : "outro")}">${esc(m.texto)}<time>${fmtDH(m.em)}</time></div>`).join("") || `<p class="muted" style="text-align:center">Escreva a primeira mensagem.</p>`}</div>
+        <div class="composer"><label class="sr-only" for="txt">Mensagem</label><textarea id="txt" rows="1" placeholder="Escreva uma mensagem"></textarea><button class="btn btn-primary" id="env" aria-label="Enviar">${icon("send")}</button></div>
+        <p class="muted" style="font-size:.8rem;margin:8px 0 0">${souU ? "As respostas dependem da disponibilidade do profissional. Em emergência, ligue 188 ou 192." : "Ligação e videochamada usam um serviço de vídeo integrado na versão de produção."}</p>
+      </section></div>`
+    : `<div class="empty"><b>Nenhuma conversa ainda</b>${souU ? "Encontre um profissional em Cuidado e toque em Conversar." : "As mensagens dos pacientes aparecem aqui."}${souU ? `<br><a class="btn" href="#cuidado">${icon("people")} Ver profissionais</a>` : ""}</div>`}`;
+  app.querySelectorAll("[data-t]").forEach(b => b.onclick = () => { ui.thread = b.dataset.t; render(); });
+  const box = app.querySelector("#msgs"); if (box) box.scrollTop = box.scrollHeight;
+  const txt = app.querySelector("#txt");
+  if (txt){
+    const enviar = () => {
+      const t = txt.value.trim(); if (!t) return;
+      DB.mensagens.push({id:uid(), uid: souU ? s.id : ui.thread, pid: souU ? ui.thread : s.id, de: souU ? "u" : "p", texto:t, em:new Date().toISOString()});
+      if (!souU) DB.alertas.filter(a => a.pid === s.id && a.uid === ui.thread && !a.atendido).forEach(a => a.atendido = new Date().toISOString());
+      salvarDB(); render(); document.getElementById("txt")?.focus();
+    };
+    app.querySelector("#env").onclick = enviar;
+    txt.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey){ e.preventDefault(); enviar(); } });
+  }
+}
+
+/* =========================================================
+   M. USUÁRIO: PRIVACIDADE (LGPD)
+   ========================================================= */
+function telaPrivacidade(app){
+  const u = eu(), cons = DB.consentimentos.filter(c => c.uid === u.id && !c.revogado), aud = DB.auditoria.filter(a => a.alvo === u.id);
+  app.innerHTML = `
+    <div class="page-head"><div><h1>Privacidade</h1><p>Seus registros são dados de saúde. Você decide quem vê, o quê e por quanto tempo.</p></div></div>
+    <div class="cols"><div class="stack">
+      <section class="card"><h2>Quem pode ver seus registros</h2>
+        ${cons.length ? cons.map(c => { const p = proPorId(c.pid); return `<div class="entry"><span class="avatar" style="width:38px;height:38px;font-size:.85rem">${iniciais(p.nome)}</span><div style="flex:1"><b>${esc(p.nome)}</b>
+          <p>${[c.humor && "humor", c.rotina && "rotina", c.notas && "anotações"].filter(Boolean).join(", ") || "nenhum registro"}${c.periodo ? `, últimos ${c.periodo} dias` : ", todo o histórico"}${c.crise ? ". Avisado(a) quando você pede ajuda" : ""}. Desde ${fmtData(c.concedido)}.</p></div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-sm" data-edit="${c.pid}">${icon("edit")} Ajustar</button><button class="btn btn-sm btn-ghost btn-danger" data-rev="${c.id}">Revogar</button></div></div>`; }).join("")
+          : `<div class="empty"><b>Ninguém tem acesso</b>Seus registros são só seus. Você pode compartilhar com um profissional em Cuidado.</div>`}</section>
+      <section class="card"><h2>Histórico de acessos e autorizações</h2>
+        <ul class="audit">${aud.map(a => `<li><time>${fmtDH(a.em)}</time><span><b>${esc(a.ator)}</b> ${esc(a.acao)}</span></li>`).join("") || `<li class="muted">Nenhum acesso registrado.</li>`}</ul></section>
+    </div><div class="stack">
+      <section class="card"><h2>Lembrete diário</h2>
+        <div class="field"><label for="lem">Horário do lembrete para registrar</label><input type="time" id="lem" value="${u.lembrete || ""}"><small>Aparece quando o app está aberto e você ainda não registrou no dia. No celular, vira notificação.</small></div></section>
+      <section class="card"><h2>Seus direitos (LGPD, art. 18)</h2>
+        <div class="stack" style="gap:8px">
+          <button class="btn" id="exp">${icon("download")} Baixar meus dados (JSON)</button>
+          <button class="btn btn-danger" id="del">${icon("trash")} Excluir minha conta e meus dados</button>
+        </div>
+        <ul style="margin:14px 0 0;padding-left:18px;font-size:.9rem;color:var(--muted);display:grid;gap:4px">
+          <li>Nada é compartilhado com empregadores, planos de saúde ou anunciantes.</li>
+          <li>O app não faz diagnóstico: os indicadores servem para você e para quem você autorizar.</li>
+          <li>Na versão de produção, os dados são cifrados no envio e no armazenamento.</li>
+        </ul></section>
+    </div></div>`;
+  app.querySelectorAll("[data-rev]").forEach(b => b.onclick = () => { const c = DB.consentimentos.find(x => x.id === b.dataset.rev); confirmar("Revogar acesso?", `${esc(proPorId(c.pid).nome)} deixa de ver seus registros a partir de agora.`, "Revogar", () => revogar(c)); });
+  app.querySelectorAll("[data-edit]").forEach(b => b.onclick = () => compartilhar(proPorId(b.dataset.edit)));
+  app.querySelector("#lem").onchange = e => { u.lembrete = e.target.value; salvarDB(); toast("Lembrete atualizado."); };
+  app.querySelector("#exp").onclick = exportarDados;
+  app.querySelector("#del").onclick = () => confirmar("Excluir sua conta?", "Todos os seus registros, autorizações e conversas serão apagados deste aparelho. Essa ação não pode ser desfeita.", "Excluir tudo", () => {
+    DB.registros = DB.registros.filter(r => r.uid !== u.id); DB.consentimentos = DB.consentimentos.filter(c => c.uid !== u.id);
+    DB.mensagens = DB.mensagens.filter(m => m.uid !== u.id); DB.agendamentos = DB.agendamentos.filter(a => a.uid !== u.id);
+    DB.alertas = DB.alertas.filter(a => a.uid !== u.id); DB.auditoria = DB.auditoria.filter(a => a.alvo !== u.id);
+    DB.usuarios = DB.usuarios.filter(x => x.id !== u.id); DB.sessao = null; salvarDB(); location.hash = ""; rota(); toast("Conta excluída.");
+  });
+}
+let downloadsNS = null;
+if (window.claude && typeof window.claude.use === "function") window.claude.use("downloads").then(d => { downloadsNS = d; }).catch(() => {});
+async function exportarDados(){
+  const u = eu(), {senha, sal, ...perfil} = u;
+  const dados = {app:"Escuta", exportadoEm:new Date().toISOString(), perfil, registros:DB.registros.filter(r => r.uid === u.id),
+    autorizacoes:DB.consentimentos.filter(c => c.uid === u.id).map(c => ({...c, profissional:proPorId(c.pid)?.nome})),
+    agendamentos:DB.agendamentos.filter(a => a.uid === u.id), mensagens:DB.mensagens.filter(m => m.uid === u.id), acessos:DB.auditoria.filter(a => a.alvo === u.id)};
+  const blob = new Blob([JSON.stringify(dados, null, 2)], {type:"application/json"}), nome = `escuta-meus-dados-${hojeStr()}.json`;
+  if (downloadsNS){ try{ await downloadsNS.save({filename:nome, data:blob}); toast("Arquivo salvo."); }catch(e){ toast(e && e.code === "declined" ? "Download cancelado." : "Não foi possível salvar o arquivo aqui."); } return; }
+  const url = URL.createObjectURL(blob), a = document.createElement("a"); a.href = url; a.download = nome; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
+/* =========================================================
+   N. PROFISSIONAL: PAINEL, PACIENTES, AGENDA E PERFIL
+   ========================================================= */
+const pacientesDe = pid => DB.consentimentos.filter(c => c.pid === pid && !c.revogado).map(c => ({c, u:userPorId(c.uid)})).filter(x => x.u);
+function telaPainel(app){
+  const p = eu(), alertas = DB.alertas.filter(a => a.pid === p.id).sort((a,b) => b.em.localeCompare(a.em));
+  const abertos = alertas.filter(a => !a.atendido);
+  const ags = DB.agendamentos.filter(a => a.pid === p.id && a.status === "confirmado" && new Date(a.inicio) > new Date()).sort((a,b) => a.inicio.localeCompare(b.inicio));
+  app.innerHTML = `
+    <div class="page-head"><div><h1>Olá, ${esc(p.nome.split(" ").slice(0,2).join(" "))}.</h1><p>${p.verificado ? "Seu registro no conselho está verificado." : "Seu registro está em verificação. Seu perfil ainda não aparece para usuários."}</p></div>
+      ${p.verificado ? `<span class="tag t-ok">${icon("badge")} ${p.conselho.tipo} ${p.conselho.uf}/${p.conselho.numero}</span>` : `<span class="tag t-warn">Em verificação</span>`}</div>
+    <div class="stats">
+      <div class="stat"><small>Pedidos de ajuda abertos</small><b style="color:${abertos.length ? "var(--ajuda)" : "inherit"}">${abertos.length}</b></div>
+      <div class="stat"><small>Pacientes que autorizaram</small><b>${pacientesDe(p.id).length}</b></div>
+      <div class="stat"><small>Próximos atendimentos</small><b>${ags.length}</b></div>
+    </div>
+    <div class="cols"><section class="card"><h2>Pedidos de ajuda</h2>
+      ${alertas.length ? alertas.slice(0,8).map(a => { const u = userPorId(a.uid); return `<div class="entry"><span class="dot" style="background:${a.atendido ? "var(--surface-2)" : "var(--ajuda-fill)"}"></span><div style="flex:1"><b>${esc(u?.nome)}</b> <span class="muted" style="font-size:.85rem">${fmtDH(a.em)}</span><p>${a.atendido ? "Respondido" : "Aguardando resposta. Responda pela conversa e, se houver risco, oriente a ligar 188 ou 192."}</p></div>
+        <button class="btn btn-sm ${a.atendido ? "" : "btn-primary"}" data-abrir="${a.uid}">${icon("chat")} Conversa</button></div>`; }).join("") : `<div class="empty"><b>Nenhum pedido de ajuda</b>Quando um paciente que escolheu você tocar em “Preciso de ajuda”, o aviso aparece aqui.</div>`}</section>
+      <section class="card"><h2>Próximos atendimentos</h2>${ags.slice(0,6).map(a => `<div class="entry"><span class="dot" style="background:var(--primary)"></span><div><b>${esc(userPorId(a.uid)?.nome)}</b><p>${fmtDH(a.inicio)}, ${({chat:"chat", ligacao:"ligação", video:"videochamada", presencial:"presencial"})[a.modalidade]}</p></div></div>`).join("") || `<p class="muted">Nenhum atendimento agendado.</p>`}</section></div>`;
+  app.querySelectorAll("[data-abrir]").forEach(b => b.onclick = () => { ui.thread = b.dataset.abrir; location.hash = "#conversas"; });
+}
+function telaPacientes(app){
+  const p = eu(), lista = pacientesDe(p.id);
+  if (ui.paciente && !lista.some(x => x.u.id === ui.paciente)) ui.paciente = null;
+  if (!ui.paciente){
+    app.innerHTML = `<div class="page-head"><div><h1>Pacientes</h1><p>Só aparecem pessoas que autorizaram você. Você vê apenas o que cada uma escolheu compartilhar.</p></div></div>
+      ${lista.length ? `<div class="pros">${lista.map(({c,u}) => `<article class="pro"><div class="pro-top"><span class="avatar">${iniciais(u.nome)}</span><div style="flex:1"><h3>${esc(u.nome)}</h3><p>Autorizou em ${fmtData(c.concedido)}: ${[c.humor && "humor", c.rotina && "rotina", c.notas && "anotações"].filter(Boolean).join(", ")}${c.periodo ? `, ${c.periodo} dias` : ", todo o histórico"}.</p></div>${c.crise ? `<span class="tag t-bad">Referência</span>` : ""}</div>
+        <div style="margin:4px 0">${faixa(registrosDe(u.id, c.periodo || 400).filter(() => c.humor), 21)}</div>
+        <div class="pro-actions"><button class="btn btn-sm btn-primary" data-ver="${u.id}">Ver registros autorizados</button><button class="btn btn-sm btn-ghost" data-msg="${u.id}">${icon("chat")} Conversa</button></div></article>`).join("")}</div>`
+      : `<div class="empty"><b>Nenhum paciente autorizou o acesso ainda</b>A autorização é feita pelo próprio usuário, no perfil de você em Cuidado.</div>`}`;
+    app.querySelectorAll("[data-ver]").forEach(b => b.onclick = () => { ui.paciente = b.dataset.ver; const u = userPorId(ui.paciente); auditar(p.nome, "visualizou os registros autorizados", u.id); salvarDB(); render(); });
+    app.querySelectorAll("[data-msg]").forEach(b => b.onclick = () => { ui.thread = b.dataset.msg; location.hash = "#conversas"; });
+    return;
+  }
+  const {c, u} = lista.find(x => x.u.id === ui.paciente);
+  const regs = c.humor ? registrosDe(u.id, c.periodo || 0) : [];
+  app.innerHTML = `
+    <div class="page-head"><div><h1>${esc(u.nome)}</h1><p>Visualização limitada ao que foi autorizado. Este acesso ficou registrado no histórico da pessoa.</p></div><button class="btn" id="voltar">Voltar</button></div>
+    <div class="ribbon-wrap">${faixa(regs, Math.min(c.periodo || 90, 60))}<div class="ribbon-legend"><span>Humor nos últimos ${Math.min(c.periodo || 90, 60)} dias</span>${legenda()}</div></div>
+    <div class="cols"><section class="card"><h2>Registros</h2>
+      ${regs.slice(0, 25).map(r => `<div class="entry"><span class="dot" style="background:var(--${r.humor}-fill)"></span><div style="flex:1"><b>${HUMOR[r.humor].curto}</b> <span class="muted" style="font-size:.85rem">${fmtDH(r.em)}</span>
+        ${c.rotina ? `<p>${[r.sono != null && `sono ${num(r.sono)} h${r.qualSono ? ` (qualidade ${r.qualSono}/5)` : ""}`, r.trabalho != null && `trabalho ${num(r.trabalho)} h`, r.atividade != null && `atividade ${r.atividade} min`, r.social != null && (r.social ? "teve contato social" : "sem contato social"), r.sentimentos.join(", ")].filter(Boolean).join("; ")}</p>` : ""}
+        ${c.notas && r.nota ? `<p style="color:var(--ink)">“${esc(r.nota)}”</p>` : ""}</div></div>`).join("") || `<p class="muted">Sem registros no período autorizado.</p>`}</section>
+      <section class="card"><h2>Padrões calculados pelo app</h2>${c.rotina ? padroesHTML(padroes(u.id)) : `<p class="muted">A pessoa não compartilhou dados de rotina.</p>`}
+        <div class="notice" style="margin-top:12px">${icon("info")}<span>Indicadores de apoio à conversa clínica. Não substituem a avaliação profissional.</span></div></section></div>`;
+  app.querySelector("#voltar").onclick = () => { ui.paciente = null; render(); };
+}
+function telaAgenda(app){
+  const p = eu(), ags = DB.agendamentos.filter(a => a.pid === p.id && a.status === "confirmado").sort((a,b) => a.inicio.localeCompare(b.inicio));
+  const HORAS = ["08:00","09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"];
+  app.innerHTML = `
+    <div class="page-head"><div><h1>Agenda</h1><p>Defina seus horários semanais. Os usuários só veem horários livres.</p></div></div>
+    <div class="cols">
+      <section class="card"><div class="card-head"><h2>Disponibilidade semanal</h2><label class="check" style="font-size:.9rem"><input type="checkbox" id="plantao" ${p.plantao ? "checked" : ""}> Aceito pedidos de ajuda (plantão online)</label></div>
+        <div class="avail"><span></span>${DOW.map(d => `<span>${d}</span>`).join("")}
+          ${HORAS.map(h => `<span>${h}</span>${DOW.map((_,d) => `<button type="button" data-d="${d}" data-h="${h}" aria-pressed="${(p.disp[d] || []).includes(h)}" aria-label="${DOW[d]} ${h}"></button>`).join("")}`).join("")}</div></section>
+      <section class="card"><h2>Atendimentos</h2>
+        ${ags.map(a => `<div class="entry"><span class="dot" style="background:${new Date(a.inicio) < new Date() ? "var(--surface-2)" : "var(--primary)"}"></span><div style="flex:1"><b>${esc(userPorId(a.uid)?.nome)}</b><p>${fmtDH(a.inicio)}, ${({chat:"chat", ligacao:"ligação", video:"videochamada", presencial:"presencial"})[a.modalidade]}</p></div>
+          ${new Date(a.inicio) > new Date() ? `<button class="btn btn-sm btn-ghost btn-danger" data-cancel="${a.id}">Cancelar</button>` : ""}</div>`).join("") || `<p class="muted">Nenhum atendimento.</p>`}</section>
+    </div>`;
+  app.querySelectorAll(".avail button").forEach(b => b.onclick = () => {
+    const d = b.dataset.d, h = b.dataset.h, l = p.disp[d] = p.disp[d] || [], i = l.indexOf(h);
+    i < 0 ? l.push(h) : l.splice(i, 1); l.sort(); b.setAttribute("aria-pressed", i < 0); salvarDB();
+  });
+  app.querySelector("#plantao").onchange = e => { p.plantao = e.target.checked; salvarDB(); toast(p.plantao ? "Você aparece para pedidos de ajuda." : "Plantão desativado."); };
+  app.querySelectorAll("[data-cancel]").forEach(b => b.onclick = () => confirmar("Cancelar atendimento?", "A pessoa recebe um aviso na conversa.", "Cancelar atendimento", () => {
+    const a = DB.agendamentos.find(x => x.id === b.dataset.cancel); a.status = "cancelado";
+    DB.mensagens.push({id:uid(), uid:a.uid, pid:p.id, de:"s", texto:`Atendimento de ${fmtDH(a.inicio)} cancelado pelo profissional.`, em:new Date().toISOString()});
+    salvarDB(); render();
+  }));
+}
+function telaPerfil(app){
+  const p = eu();
+  app.innerHTML = `
+    <div class="page-head"><div><h1>Perfil profissional</h1><p>Estas informações aparecem para os usuários em Cuidado.</p></div></div>
+    <div class="cols"><form class="card form stack" id="fp" novalidate>
+      <div class="row"><div class="field"><label for="nome">Nome</label><input id="nome" name="nome" value="${esc(p.nome)}"><div class="err">Informe o nome.</div></div>
+        <div class="field"><label for="profissao">Profissão</label><input id="profissao" name="profissao" value="${esc(p.profissao)}"></div></div>
+      <div class="row"><div class="field"><label for="rede">Rede</label><select id="rede" name="rede">${Object.entries(REDE).map(([k,[r]]) => `<option value="${k}" ${p.rede===k?"selected":""}>${r}</option>`).join("")}</select></div>
+        <div class="field"><label for="valor">Valor por sessão (R$)</label><input id="valor" name="valor" type="number" min="0" step="5" value="${p.valor}"><div class="err">Informe um valor válido.</div></div></div>
+      <div class="row"><div class="field"><label for="cidade">Cidade</label><input id="cidade" name="cidade" value="${esc(p.cidade)}"></div><div class="field"><label for="bairro">Bairro</label><input id="bairro" name="bairro" value="${esc(p.bairro)}"></div></div>
+      <div style="display:flex;gap:18px;flex-wrap:wrap"><label class="check"><input type="checkbox" name="online" ${p.online ? "checked" : ""}> Atende online</label><label class="check"><input type="checkbox" name="presencial" ${p.presencial ? "checked" : ""}> Atende presencialmente</label></div>
+      <div class="field"><label for="abordagem">Abordagem e foco</label><textarea id="abordagem" name="abordagem" maxlength="300">${esc(p.abordagem)}</textarea></div>
+      <button class="btn btn-primary" type="submit">${icon("check")} Salvar perfil</button></form>
+      <section class="card"><h2>Registro profissional</h2><p style="margin:0"><b>${p.conselho.tipo} ${p.conselho.uf}/${p.conselho.numero}</b></p>
+        <p class="muted" style="font-size:.9rem">${p.verificado ? "Verificado." : "Em verificação."} Em produção, a verificação consulta o cadastro nacional do conselho (CFP ou CFM) antes de liberar o perfil.</p>
+        ${!p.verificado ? `<button class="btn btn-sm" id="verif">Simular aprovação (demonstração)</button>` : ""}
+        <div class="notice" style="margin-top:12px">${icon("info")}<span>Atendimentos online seguem as normas do seu conselho, como a Resolução CFP nº 11/2018 para psicólogos.</span></div></section></div>`;
+  const f = app.querySelector("#fp"), el = f.elements;
+  f.onsubmit = e => { e.preventDefault(); if (!validar(f, [["nome", el.nome.value.trim()], ["valor", el.valor.value !== "" && +el.valor.value >= 0]])) return;
+    Object.assign(p, {nome:el.nome.value.trim(), profissao:el.profissao.value.trim(), rede:el.rede.value, valor:+el.valor.value, cidade:el.cidade.value.trim(), bairro:el.bairro.value.trim(), online:el.online.checked, presencial:el.presencial.checked, abordagem:el.abordagem.value.trim()});
+    salvarDB(); toast("Perfil salvo."); render(); };
+  const v = app.querySelector("#verif"); if (v) v.onclick = () => { p.verificado = true; salvarDB(); render(); toast("Registro verificado (simulação)."); };
+}
+
+/* =========================================================
+   O. LEMBRETE DIÁRIO E INICIALIZAÇÃO
+   ========================================================= */
+let lembreteMostrado = "";
+setInterval(() => {
+  if (!DB?.sessao || DB.sessao.tipo !== "u") return;
+  const u = eu(); if (!u?.lembrete) return;
+  const agora = new Date(), [h,m] = u.lembrete.split(":").map(Number), hoje = hojeStr();
+  if (agora.getHours()*60 + agora.getMinutes() >= h*60 + m && lembreteMostrado !== hoje && !DB.registros.some(r => r.uid === u.id && diaDe(r.em) === hoje)){
+    lembreteMostrado = hoje;
+    if (!sheet.open) abrir("Como foi seu dia?", `<p style="margin-top:0">Leva menos de um minuto e ajuda você a perceber seus padrões.</p><div class="sheet-foot"><button class="btn" data-fechar>Depois</button><a class="btn btn-primary" href="#hoje" data-fechar>Registrar agora</a></div>`);
+  }
+}, 30000);
+
+(async function iniciar(){
+  aplicarTema();
+  try{ const v = JSON.parse(localStorage.getItem(DB_KEY)); if (v && v.versao === 1) DB = Object.assign(vazioDB(), v); }catch(e){}
+  if (!DB) await semear();
+  rota();
+})();
+</script>
+</body>
+</html>
